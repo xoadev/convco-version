@@ -37,7 +37,8 @@ if [ "$TAG_PREFIX" != "v" ]; then
 fi
 
 if [ ${#CONFIG_ENTRIES[@]} -gt 0 ]; then
-  CONFIG_FILE=".convco"
+  CONFIG_FILE=".convco-temp"
+  : > "$CONFIG_FILE"
   for entry in "${CONFIG_ENTRIES[@]}"; do
     printf '%s\n' "$entry" >> "$CONFIG_FILE"
   done
