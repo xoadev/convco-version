@@ -13,8 +13,6 @@ if [ -n "$WORK_DIR" ]; then
   CONVCO_ARGS="$CONVCO_ARGS -C $WORK_DIR"
 fi
 
-CONVCO_ARGS="$CONVCO_ARGS -t $TAG_PREFIX"
-
 IFS=',' read -ra PATH_LIST <<< "$PATHS"
 for p in "${PATH_LIST[@]}"; do
   p=$(echo "$p" | xargs)
@@ -28,9 +26,21 @@ if [ "$COMMIT_COUNT" -lt 2 ]; then
   echo "::warning::Shallow clone detected. Consider using 'fetch-depth: 0' with actions/checkout for accurate version calculation."
 fi
 
+CONFIG_ENTRIES=()
+
 if [ -n "$INITIAL_VERSION" ]; then
+  CONFIG_ENTRIES+=("initial_bump_version: \"$INITIAL_VERSION\"")
+fi
+
+if [ "$TAG_PREFIX" != "v" ]; then
+  CONFIG_ENTRIES+=("tag_prefix: \"$TAG_PREFIX\"")
+fi
+
+if [ ${#CONFIG_ENTRIES[@]} -gt 0 ]; then
   CONFIG_FILE=$(mktemp)
-  printf 'initial_bump_version: "%s"\n' "$INITIAL_VERSION" > "$CONFIG_FILE"
+  for entry in "${CONFIG_ENTRIES[@]}"; do
+    printf '%s\n' "$entry" >> "$CONFIG_FILE"
+  done
   CONVCO_ARGS="$CONVCO_ARGS -c $CONFIG_FILE"
 fi
 
