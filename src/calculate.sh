@@ -29,15 +29,15 @@ fi
 CONFIG_ENTRIES=()
 
 if [ -n "$INITIAL_VERSION" ]; then
-  CONFIG_ENTRIES+=("initialBumpVersion: \"$INITIAL_VERSION\"")
+  CONFIG_ENTRIES+=("initial_bump_version: \"$INITIAL_VERSION\"")
 fi
 
 if [ "$TAG_PREFIX" != "v" ]; then
-  CONFIG_ENTRIES+=("tagPrefix: \"$TAG_PREFIX\"")
+  CONFIG_ENTRIES+=("tag_prefix: \"$TAG_PREFIX\"")
 fi
 
 if [ ${#CONFIG_ENTRIES[@]} -gt 0 ]; then
-  CONFIG_FILE=$(mktemp)
+  CONFIG_FILE=".convco"
   for entry in "${CONFIG_ENTRIES[@]}"; do
     printf '%s\n' "$entry" >> "$CONFIG_FILE"
   done
@@ -56,7 +56,7 @@ case "$BUMP_INPUT" in
     ;;
 esac
 
-CURRENT_VERSION=$(convco version $CONVCO_ARGS 2>/dev/null || echo "0.0.0")
+CURRENT_VERSION=$(convco version $CONVCO_ARGS || echo "0.0.0")
 
 if [ "$CURRENT_VERSION" = "0.0.0" ] && [ -z "$INITIAL_VERSION" ]; then
   echo "::warning::No version tags found. Set 'initial-version' input to specify a starting version."
