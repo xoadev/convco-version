@@ -16,9 +16,6 @@ inputs:
   working-directory:
     description: 'Run convco as if started in this path. Useful for monorepos with per-package .versionrc'
     default: ''
-  initial-version:
-    description: 'Initial version to use if no version tags exist'
-    default: ''
 outputs:
   current-version:
     description: 'Current version'
@@ -74,7 +71,6 @@ runs:
         PATHS: ${{ inputs.paths }}
         BUMP_TYPE: ${{ inputs.bump-type }}
         WORKING_DIRECTORY: ${{ inputs.working-directory }}
-        INITIAL_VERSION: ${{ inputs.initial-version }}
 
 branding:
   icon: 'tag'

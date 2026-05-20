@@ -25,7 +25,6 @@ GitHub Action to calculate current and next version using [convco](https://githu
 | `convco-version` | Version of convco to install | `0.6.3` |
 | `bump-type` | Force bump type: `major`, `minor`, or `patch` | _(auto-detect)_ |
 | `working-directory` | Run convco from this path (useful for per-package `.versionrc`) | _(root)_ |
-| `initial-version` | Initial version to use if no version tags exist | _(empty)_ |
 
 ## Outputs
 
@@ -118,15 +117,6 @@ jobs:
     tag_name: ${{ steps.version.outputs.next-version-tag }}
     name: Major Release ${{ steps.version.outputs.next-version }}
     body: ${{ steps.version.outputs.changelog }}
-```
-
-### New repository (no tags)
-
-```yaml
-- uses: xoadev/convco-version@v1
-  id: version
-  with:
-    initial-version: '1.0.0'
 ```
 
 ## Monorepo

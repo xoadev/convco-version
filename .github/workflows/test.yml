@@ -243,8 +243,8 @@ jobs:
           echo "$CHANGELOG"
           [[ -n "$CHANGELOG" ]] || { echo "FAIL: changelog is empty"; exit 1; }
 
-  test-initial-version:
-    name: Initial Version (No Tags)
+  test-no-tags:
+    name: No Tags (0.0.0 -> 0.1.0)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6.0.2
@@ -258,14 +258,12 @@ jobs:
           git commit --allow-empty -m "feat: first feature"
 
       - uses: ./
-        with:
-          initial-version: '1.0.0'
         id: version
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
-          [[ "${{ steps.version.outputs.next-version }}" == "1.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "${{ steps.version.outputs.current-version }}" == "0.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "${{ steps.version.outputs.next-version }}" == "0.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
           [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
           [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
 

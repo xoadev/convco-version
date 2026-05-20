@@ -5,7 +5,6 @@ TAG_PREFIX="${TAG_PREFIX:-v}"
 PATHS="${PATHS:-.}"
 BUMP_INPUT="${BUMP_TYPE:-}"
 WORK_DIR="${WORKING_DIRECTORY:-}"
-INITIAL_VERSION="${INITIAL_VERSION:-}"
 
 CONVCO_ARGS=""
 
@@ -28,13 +27,6 @@ if [ "$COMMIT_COUNT" -lt 2 ]; then
   echo "::warning::Shallow clone detected. Consider using 'fetch-depth: 0' with actions/checkout for accurate version calculation."
 fi
 
-if [ -n "$INITIAL_VERSION" ]; then
-  CONFIG_FILE=".convco-temp"
-  : > "$CONFIG_FILE"
-  printf 'initial_bump_version: "%s"\n' "$INITIAL_VERSION" >> "$CONFIG_FILE"
-  CONVCO_ARGS="$CONVCO_ARGS -c $CONFIG_FILE"
-fi
-
 BUMP_OVERRIDE=""
 case "$BUMP_INPUT" in
   major) BUMP_OVERRIDE="--major" ;;
@@ -49,8 +41,8 @@ esac
 
 CURRENT_VERSION=$(convco version $CONVCO_ARGS || echo "0.0.0")
 
-if [ "$CURRENT_VERSION" = "0.0.0" ] && [ -z "$INITIAL_VERSION" ]; then
-  echo "::warning::No version tags found. Set 'initial-version' input to specify a starting version."
+if [ "$CURRENT_VERSION" = "0.0.0" ]; then
+  echo "::warning::No version tags found. Starting from 0.0.0."
 fi
 
 if [ -n "$BUMP_OVERRIDE" ]; then
