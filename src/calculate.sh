@@ -53,9 +53,9 @@ fi
 if [ -n "$BUMP_OVERRIDE" ]; then
   NEXT_VERSION=$(convco version $CONVCO_ARGS -b $BUMP_OVERRIDE 2>/dev/null || echo "$CURRENT_VERSION")
 else
-  NEXT_VERSION=$(convco version $CONVCO_ARGS 2>/dev/null || echo "$CURRENT_VERSION")
+  NEXT_VERSION=$(convco version $CONVCO_ARGS -b 2>/dev/null || echo "$CURRENT_VERSION")
 fi
-DETECTED_BUMP=$(convco version $CONVCO_ARGS --label 2>/dev/null || echo "none")
+DETECTED_BUMP=$(convco version $CONVCO_ARGS -b --label 2>/dev/null || echo "none")
 
 if [ -n "$BUMP_OVERRIDE" ]; then
   DETECTED_BUMP="$BUMP_INPUT"
