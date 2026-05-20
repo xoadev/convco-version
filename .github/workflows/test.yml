@@ -1,0 +1,300 @@
+name: Integration Tests
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-basic-patch:
+    name: Basic Patch Bump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git tag v1.0.0
+          git commit --allow-empty -m "fix: something broken"
+
+      - uses: ./
+        id: version
+
+      - name: Validate outputs
+        run: |
+          echo "current-version: ${{ steps.version.outputs.current-version }}"
+          echo "next-version: ${{ steps.version.outputs.next-version }}"
+          echo "bump-type: ${{ steps.version.outputs.bump-type }}"
+          echo "has-changes: ${{ steps.version.outputs.has-changes }}"
+
+          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "${{ steps.version.outputs.next-version }}" == "1.0.1" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "patch" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "${{ steps.version.outputs.commits-since-last-release }}" == "1" ]] || { echo "FAIL: commits-since-last-release"; exit 1; }
+
+  test-basic-minor:
+    name: Basic Minor Bump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git tag v1.0.0
+          git commit --allow-empty -m "feat: add new feature"
+
+      - uses: ./
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "${{ steps.version.outputs.next-version }}" == "1.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+
+  test-basic-major:
+    name: Basic Major Bump
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git tag v1.0.0
+          git commit --allow-empty -m "feat!: breaking change"
+
+      - uses: ./
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "${{ steps.version.outputs.next-version }}" == "2.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "major" ]] || { echo "FAIL: bump-type"; exit 1; }
+
+  test-no-changes:
+    name: No Changes
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git tag v1.0.0
+
+      - uses: ./
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "${{ steps.version.outputs.next-version }}" == "1.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "${{ steps.version.outputs.has-changes }}" == "false" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "none" ]] || { echo "FAIL: bump-type"; exit 1; }
+
+  test-bump-override:
+    name: Bump Type Override
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git tag v1.0.0
+          git commit --allow-empty -m "fix: minor fix"
+
+      - uses: ./
+        with:
+          bump-type: major
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.next-version }}" == "2.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "major" ]] || { echo "FAIL: bump-type"; exit 1; }
+
+  test-monorepo:
+    name: Monorepo Path Filtering
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup monorepo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          mkdir -p packages/core packages/web
+          git tag v1.0.0
+          touch packages/core/file.js
+          git add packages/core/file.js
+          git commit -m "feat(core): new feature"
+          touch packages/web/file.js
+          git add packages/web/file.js
+          git commit -m "feat(web): web feature"
+
+      - uses: ./
+        with:
+          paths: 'packages/core'
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+
+  test-monorepo-no-changes:
+    name: Monorepo No Changes in Path
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup monorepo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          mkdir -p packages/core packages/web
+          git tag v1.0.0
+          touch packages/web/file.js
+          git add packages/web/file.js
+          git commit -m "feat(web): web feature"
+
+      - uses: ./
+        with:
+          paths: 'packages/core'
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.has-changes }}" == "false" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "none" ]] || { echo "FAIL: bump-type"; exit 1; }
+
+  test-tag-prefix:
+    name: Custom Tag Prefix
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git tag release-1.0.0
+          git commit --allow-empty -m "fix: something"
+
+      - uses: ./
+        with:
+          tag-prefix: 'release-'
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.current-version-tag }}" == "release-1.0.0" ]] || { echo "FAIL: current-version-tag"; exit 1; }
+          [[ "${{ steps.version.outputs.next-version-tag }}" == "release-1.0.1" ]] || { echo "FAIL: next-version-tag"; exit 1; }
+
+  test-changelog:
+    name: Changelog Generation
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git tag v1.0.0
+          git commit --allow-empty -m "feat: add feature"
+          git commit --allow-empty -m "fix: fix bug"
+
+      - uses: ./
+        id: version
+
+      - name: Validate changelog
+        run: |
+          CHANGELOG="${{ steps.version.outputs.changelog }}"
+          echo "$CHANGELOG"
+          [[ -n "$CHANGELOG" ]] || { echo "FAIL: changelog is empty"; exit 1; }
+
+  test-no-tags:
+    name: No Tags (0.0.0 -> 0.1.0)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          git commit --allow-empty -m "feat: first feature"
+
+      - uses: ./
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.current-version }}" == "0.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "${{ steps.version.outputs.next-version }}" == "0.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+
+  test-working-directory:
+    name: Working Directory with .versionrc
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+        with:
+          fetch-depth: 0
+
+      - name: Setup test repo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          mkdir -p packages/core
+          git tag v1.0.0
+          cat > packages/core/.versionrc <<EOF
+          preMajor: false
+          EOF
+          touch packages/core/file.js
+          git add packages/core/file.js packages/core/.versionrc
+          git commit -m "feat: new feature"
+
+      - uses: ./
+        with:
+          working-directory: 'packages/core'
+          paths: 'packages/core'
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }

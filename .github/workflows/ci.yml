@@ -1,0 +1,47 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  shellcheck:
+    name: Shellcheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Run shellcheck
+        uses: ludeeus/action-shellcheck@2.0.0
+        with:
+          scandir: src
+          severity: warning
+
+  actionlint:
+    name: Actionlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Run actionlint
+        uses: rhysd/actionlint@v1.7.12
+
+  markdownlint:
+    name: Markdownlint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Run markdownlint
+        uses: DavidAnson/markdownlint-cli2-action@v23.2.0
+        with:
+          globs: '**/*.md'
+          config: '.github/etc/.markdownlint.json'
+
+  yamllint:
+    name: Yamllint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6.0.2
+      - name: Run yamllint
+        uses: ibiqlik/action-yamllint@v3.1.1
+        with:
+          config_file: .github/etc/.yamllint.yml

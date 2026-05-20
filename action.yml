@@ -1,0 +1,77 @@
+name: 'convco-version'
+description: 'Calculate current and next version using conventional commits'
+inputs:
+  tag-prefix:
+    description: 'Prefix used in front of the semantic version'
+    default: 'v'
+  paths:
+    description: 'Only commits that update these paths will be considered. Useful for monorepos'
+    default: '.'
+  convco-version:
+    description: 'Version of convco to install'
+    default: '0.6.3' # renovate: convco
+  bump-type:
+    description: 'Force bump type: major, minor, or patch'
+    default: ''
+  working-directory:
+    description: 'Run convco as if started in this path. Useful for monorepos with per-package .versionrc'
+    default: ''
+outputs:
+  current-version:
+    description: 'Current version'
+    value: ${{ steps.convco.outputs.current-version }}
+  current-version-tag:
+    description: 'Current version with tag prefix'
+    value: ${{ steps.convco.outputs.current-version-tag }}
+  next-version:
+    description: 'Next version'
+    value: ${{ steps.convco.outputs.next-version }}
+  next-version-tag:
+    description: 'Next version with tag prefix'
+    value: ${{ steps.convco.outputs.next-version-tag }}
+  changelog:
+    description: 'Changelog for the next release'
+    value: ${{ steps.convco.outputs.changelog }}
+  has-changes:
+    description: 'Whether there are unreleased changes'
+    value: ${{ steps.convco.outputs.has-changes }}
+  bump-type:
+    description: 'Detected bump type (major, minor, patch, none)'
+    value: ${{ steps.convco.outputs.bump-type }}
+  commits-since-last-release:
+    description: 'Number of commits since the last release tag'
+    value: ${{ steps.convco.outputs.commits-since-last-release }}
+  cache-hit:
+    description: 'Whether convco was loaded from cache'
+    value: ${{ steps.install.outputs.cache-hit }}
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Cache convco
+      id: cache
+      uses: actions/cache@v5.0.5
+      with:
+        path: ${{ runner.temp }}/convco-cache
+        key: convco-${{ inputs.convco-version }}-${{ runner.os }}-${{ runner.arch }}
+
+    - name: Install convco
+      id: install
+      shell: bash
+      run: ${{ github.action_path }}/src/install.sh
+      env:
+        CONVCO_VERSION: ${{ inputs.convco-version }}
+
+    - name: Calculate version info
+      id: convco
+      shell: bash
+      run: ${{ github.action_path }}/src/calculate.sh
+      env:
+        TAG_PREFIX: ${{ inputs.tag-prefix }}
+        PATHS: ${{ inputs.paths }}
+        BUMP_TYPE: ${{ inputs.bump-type }}
+        WORKING_DIRECTORY: ${{ inputs.working-directory }}
+
+branding:
+  icon: 'tag'
+  color: 'blue'
