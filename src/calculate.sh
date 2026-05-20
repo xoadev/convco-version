@@ -13,6 +13,8 @@ if [ -n "$WORK_DIR" ]; then
   CONVCO_ARGS="$CONVCO_ARGS -C $WORK_DIR"
 fi
 
+CONVCO_ARGS="$CONVCO_ARGS -t $TAG_PREFIX"
+
 IFS=',' read -ra PATH_LIST <<< "$PATHS"
 for p in "${PATH_LIST[@]}"; do
   p=$(echo "$p" | xargs)
@@ -28,7 +30,7 @@ fi
 
 if [ -n "$INITIAL_VERSION" ]; then
   CONFIG_FILE=$(mktemp)
-  printf 'initialBumpVersion: "%s"\n' "$INITIAL_VERSION" > "$CONFIG_FILE"
+  printf 'initial_bump_version: "%s"\n' "$INITIAL_VERSION" > "$CONFIG_FILE"
   CONVCO_ARGS="$CONVCO_ARGS -c $CONFIG_FILE"
 fi
 
