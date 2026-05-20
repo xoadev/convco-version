@@ -29,11 +29,11 @@ fi
 CONFIG_ENTRIES=()
 
 if [ -n "$INITIAL_VERSION" ]; then
-  CONFIG_ENTRIES+=("initial_bump_version: \"$INITIAL_VERSION\"")
+  CONFIG_ENTRIES+=("initialBumpVersion: \"$INITIAL_VERSION\"")
 fi
 
 if [ "$TAG_PREFIX" != "v" ]; then
-  CONFIG_ENTRIES+=("tag_prefix: \"$TAG_PREFIX\"")
+  CONFIG_ENTRIES+=("tagPrefix: \"$TAG_PREFIX\"")
 fi
 
 if [ ${#CONFIG_ENTRIES[@]} -gt 0 ]; then
