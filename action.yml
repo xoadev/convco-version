@@ -9,7 +9,10 @@ inputs:
     default: '.'
   convco-version:
     description: 'Version of convco to install'
-    default: '0.6.3' # renovate: convco
+    default: '0.7.2' # renovate: convco
+  convco-sha256:
+    description: 'sha256 of the convco release asset, for a convco-version whose checksum this action does not know'
+    default: ''
   bump-type:
     description: 'Force bump type: major, minor, or patch'
     default: ''
@@ -50,7 +53,8 @@ runs:
   steps:
     - name: Cache convco
       id: cache
-      uses: actions/cache@v5.0.5
+      # By commit SHA: pinning this action by SHA does not pin what it uses.
+      uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ runner.temp }}/convco-cache
         key: convco-${{ inputs.convco-version }}-${{ runner.os }}-${{ runner.arch }}
@@ -61,6 +65,7 @@ runs:
       run: ${{ github.action_path }}/src/install.sh
       env:
         CONVCO_VERSION: ${{ inputs.convco-version }}
+        CONVCO_SHA256: ${{ inputs.convco-sha256 }}
 
     - name: Calculate version info
       id: convco
