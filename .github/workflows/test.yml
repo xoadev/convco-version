@@ -18,6 +18,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag v1.0.0
           git commit --allow-empty -m "fix: something broken"
 
@@ -49,6 +51,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag v1.0.0
           git commit --allow-empty -m "feat: add new feature"
 
@@ -73,6 +77,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag v1.0.0
           git commit --allow-empty -m "feat!: breaking change"
 
@@ -97,6 +103,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag v1.0.0
 
       - uses: ./
@@ -121,6 +129,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag v1.0.0
           git commit --allow-empty -m "fix: minor fix"
 
@@ -146,6 +156,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           mkdir -p packages/core packages/web
           git tag v1.0.0
           touch packages/core/file.js
@@ -177,6 +189,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           mkdir -p packages/core packages/web
           git tag v1.0.0
           touch packages/web/file.js
@@ -205,6 +219,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag release-1.0.0
           git commit --allow-empty -m "fix: something"
 
@@ -230,6 +246,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag v1.0.0
           git commit --allow-empty -m "feat: add feature"
           git commit --allow-empty -m "fix: fix bug"
@@ -255,6 +273,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git commit --allow-empty -m "feat: first feature"
 
       - uses: ./
@@ -279,6 +299,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           mkdir -p packages/core
           git tag v1.0.0
           cat > packages/core/.versionrc <<EOF
@@ -311,6 +333,8 @@ jobs:
         run: |
           git config user.email "test@test.com"
           git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
           git tag v1.0.0
           git commit --allow-empty -m "fix: something broken"
 
