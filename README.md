@@ -14,6 +14,7 @@ GitHub Action to calculate current and next version using [convco](https://githu
 - Monorepo support via path filtering
 - Force bump type override
 - Fast execution with GitHub Actions caching (no Docker build overhead)
+- convco checked against its sha256 before it runs, downloaded or from the cache
 - Cross-platform: Linux, macOS, Windows
 
 ## Inputs
@@ -22,7 +23,8 @@ GitHub Action to calculate current and next version using [convco](https://githu
 | --- | --- | --- |
 | `tag-prefix` | Prefix for version tags | `v` |
 | `paths` | Comma-separated paths to filter commits (monorepo support) | `.` |
-| `convco-version` | Version of convco to install | `0.6.3` |
+| `convco-version` | Version of convco to install | `0.7.2` |
+| `convco-sha256` | sha256 of the convco release asset, for a `convco-version` whose checksum the action doesn't know | _(known versions)_ |
 | `bump-type` | Force bump type: `major`, `minor`, or `patch` | _(auto-detect)_ |
 | `working-directory` | Run convco from this path (useful for per-package `.versionrc`) | _(root)_ |
 
@@ -38,7 +40,7 @@ GitHub Action to calculate current and next version using [convco](https://githu
 | `has-changes` | `true` if there are unreleased commits |
 | `bump-type` | Detected bump type: `major`, `minor`, `patch`, or `none` |
 | `commits-since-last-release` | Number of commits since the last version tag |
-| `cache-hit` | `true` if convco was loaded from cache |
+| `cache-hit` | `true` if convco's archive came from the cache |
 
 ## Usage
 
@@ -54,7 +56,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -63,7 +65,7 @@ jobs:
 
       - name: Create Release
         if: steps.version.outputs.has-changes == 'true'
-        uses: softprops/action-gh-release@v2.6.2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: ${{ steps.version.outputs.next-version-tag }}
           name: Release ${{ steps.version.outputs.next-version }}
@@ -85,7 +87,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -112,7 +114,7 @@ jobs:
 ```yaml
 - name: Create Major Release
   if: steps.version.outputs.bump-type == 'major'
-  uses: softprops/action-gh-release@v2.6.2
+  uses: softprops/action-gh-release@v3.0.3
   with:
     tag_name: ${{ steps.version.outputs.next-version-tag }}
     name: Major Release ${{ steps.version.outputs.next-version }}
@@ -175,7 +177,7 @@ jobs:
       core: ${{ steps.filter.outputs.core }}
       web: ${{ steps.filter.outputs.web }}
     steps:
-      - uses: dorny/paths-filter@v4.0.1
+      - uses: dorny/paths-filter@v4.0.3
         id: filter
         with:
           filters: |
@@ -189,7 +191,7 @@ jobs:
     if: needs.changes.outputs.core == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -198,7 +200,7 @@ jobs:
         with:
           paths: 'packages/core'
 
-      - uses: softprops/action-gh-release@v2.6.2
+      - uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: core-${{ steps.version.outputs.next-version-tag }}
           body: ${{ steps.version.outputs.changelog }}
@@ -209,7 +211,7 @@ jobs:
     if: needs.changes.outputs.web == 'true'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -218,7 +220,7 @@ jobs:
         with:
           paths: 'packages/web'
 
-      - uses: softprops/action-gh-release@v2.6.2
+      - uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: web-${{ steps.version.outputs.next-version-tag }}
           body: ${{ steps.version.outputs.changelog }}
@@ -258,5 +260,5 @@ See the [convco configuration docs](https://convco.github.io/configuration/) for
 
 ## Requirements
 
-- `actions/checkout@v6.0.2` with `fetch-depth: 0` (full git history)
-- Linux, macOS, or Windows runner
+- `actions/checkout@v7.0.1` with `fetch-depth: 0` (full git history)
+- Linux, macOS, or Windows runner. From convco 0.7 there is no build for Intel Macs: there, set `convco-version: 0.6.3`

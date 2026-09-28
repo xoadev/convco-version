@@ -3,6 +3,8 @@
 ## Versioning
 
 - Always use full version pins for all dependencies, actions, and tools (e.g., `actions/checkout@v6.0.2`, not `actions/checkout@v6` or `actions/checkout@latest`).
+- In `action.yml`, actions are pinned by commit SHA with the version in a comment: a workflow that pins this action by SHA does not pin what it uses.
+- A new convco version needs the sha256 of each of its assets in `src/install.sh`, as GitHub reports them for the release (`gh api repos/convco/convco/releases/tags/v<version> --jq '.assets[] | "\(.name) \(.digest)"'`).
 
 ## Testing
 

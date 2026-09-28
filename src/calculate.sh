@@ -81,10 +81,13 @@ echo "has-changes=$HAS_CHANGES" >> "$GITHUB_OUTPUT"
 echo "bump-type=$FINAL_BUMP" >> "$GITHUB_OUTPUT"
 echo "commits-since-last-release=$COMMITS_SINCE" >> "$GITHUB_OUTPUT"
 
+# A delimiter nobody can know in advance: a changelog line equal to a fixed one would end the value there, and the
+# lines after it would set other outputs.
+DELIMITER="CHANGELOG_$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')"
 {
-  echo "changelog<<CHANGELOG_EOF"
+  echo "changelog<<$DELIMITER"
   echo "$CHANGELOG"
-  echo "CHANGELOG_EOF"
+  echo "$DELIMITER"
 } >> "$GITHUB_OUTPUT"
 
 echo "Current version: ${TAG_PREFIX}${CURRENT_VERSION}"

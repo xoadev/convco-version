@@ -7,7 +7,7 @@ jobs:
   draft:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v7.0.1
         with:
           fetch-depth: 0
 
@@ -16,7 +16,7 @@ jobs:
 
       - name: Create Release Draft
         if: steps.version.outputs.has-changes == 'true'
-        uses: softprops/action-gh-release@v2.6.2
+        uses: softprops/action-gh-release@v3.0.3
         with:
           draft: true
           tag_name: ${{ steps.version.outputs.next-version-tag }}
