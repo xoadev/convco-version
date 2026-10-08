@@ -1,24 +1,34 @@
 {
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
-  "extends": ["config:recommended"],
-  "minimumReleaseAge": "5 days",
+  "extends": [
+    "config:recommended"
+  ],
+  "minimumReleaseAge": "7 days",
   "vulnerabilityAlerts": {
     "minimumReleaseAge": "1 day"
   },
-  "packageRules": [
-    {
-      "matchManagers": ["github-actions"],
-      "commitMessagePrefix": "ci:"
-    }
+  "enabledManagers": [
+    "custom.regex"
   ],
-  "regexManagers": [
+  "customManagers": [
     {
-      "fileMatch": ["^action\\.yml$"],
+      "customType": "regex",
+      "description": "convco's default version; Dependabot keeps the actions up to date",
+      "managerFilePatterns": [
+        "/^action\\.yml$/"
+      ],
       "matchStrings": [
         "default:\\s*['\"]?(?<currentValue>[\\d]+\\.[\\d]+\\.[\\d]+)['\"]?\\s*#\\s*renovate: convco"
       ],
       "datasourceTemplate": "github-releases",
-      "depNameTemplate": "convco/convco",
+      "depNameTemplate": "convco/convco"
+    }
+  ],
+  "packageRules": [
+    {
+      "matchDepNames": [
+        "convco/convco"
+      ],
       "commitMessagePrefix": "ci:"
     }
   ]

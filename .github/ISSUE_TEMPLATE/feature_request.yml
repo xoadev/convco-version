@@ -1,0 +1,16 @@
+name: Feature request
+description: Suggest a new input, output or behavior
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem would it solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: What would you like the action to do?
+    validations:
+      required: true

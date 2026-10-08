@@ -1,0 +1,8 @@
+rules:
+  # `uses: ./` is the action under test, as checked out; `$/` would add nothing.
+  self-repository:
+    disable: true
+  # action-gh-release finds the draft it made on an earlier push and updates it; `gh release create` would add another.
+  superfluous-actions:
+    ignore:
+      - release-draft.yml

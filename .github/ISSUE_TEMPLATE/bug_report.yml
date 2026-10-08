@@ -1,0 +1,42 @@
+name: Bug report
+description: The action failed or gave a wrong version, bump type or changelog
+labels: [bug]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What the action did, and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: workflow
+    attributes:
+      label: Workflow
+      description: The steps that run the action, with their inputs.
+      render: yaml
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs
+      description: The output of the action's step.
+      render: text
+  - type: input
+    id: version
+    attributes:
+      label: Action version
+      placeholder: v1.0.1
+    validations:
+      required: true
+  - type: dropdown
+    id: runner
+    attributes:
+      label: Runner
+      options:
+        - Linux
+        - macOS
+        - Windows
+    validations:
+      required: true

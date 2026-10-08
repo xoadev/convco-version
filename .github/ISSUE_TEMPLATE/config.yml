@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security vulnerability
+    url: https://github.com/xoadev/convco-version/security/advisories/new
+    about: Report it privately, not in a public issue.
+  - name: convco itself
+    url: https://github.com/convco/convco/issues
+    about: Problems in convco's version or changelog logic belong upstream.

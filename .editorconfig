@@ -16,6 +16,8 @@ indent_size = 2
 
 [*.sh]
 indent_size = 2
+# shfmt
+switch_case_indent = true
 
 [Makefile]
 indent_style = tab

@@ -6,6 +6,13 @@
 - In `action.yml`, actions are pinned by commit SHA with the version in a comment: a workflow that pins this action by SHA does not pin what it uses.
 - A new convco version needs the sha256 of each of its assets in `src/install.sh`, as GitHub reports them for the release (`gh api repos/convco/convco/releases/tags/v<version> --jq '.assets[] | "\(.name) \(.digest)"'`).
 
+- Dependabot updates the actions (workflows and `action.yml`); Renovate only updates convco's default version.
+
+## Linting
+
+- CI runs ShellCheck (style severity), shfmt, actionlint, zizmor, markdownlint, yamllint (strict), editorconfig-checker and typos; `make lint` runs them locally.
+- Values from `${{ }}` reach `run:` scripts through `env:`, never inline.
+
 ## Testing
 
 - All features must be verified via integration tests running in GitHub Actions workflows.
