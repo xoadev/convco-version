@@ -5,14 +5,22 @@ on:
   pull_request:
     branches: [main]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+
 jobs:
   test-basic-patch:
     name: Basic Patch Bump
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -28,24 +36,31 @@ jobs:
 
       - name: Validate outputs
         run: |
-          echo "current-version: ${{ steps.version.outputs.current-version }}"
-          echo "next-version: ${{ steps.version.outputs.next-version }}"
-          echo "bump-type: ${{ steps.version.outputs.bump-type }}"
-          echo "has-changes: ${{ steps.version.outputs.has-changes }}"
+          echo "current-version: $CURRENT_VERSION"
+          echo "next-version: $NEXT_VERSION"
+          echo "bump-type: $BUMP_TYPE"
+          echo "has-changes: $HAS_CHANGES"
 
-          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
-          [[ "${{ steps.version.outputs.next-version }}" == "1.0.1" ]] || { echo "FAIL: next-version"; exit 1; }
-          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "patch" ]] || { echo "FAIL: bump-type"; exit 1; }
-          [[ "${{ steps.version.outputs.commits-since-last-release }}" == "1" ]] || { echo "FAIL: commits-since-last-release"; exit 1; }
+          [[ "$CURRENT_VERSION" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "$NEXT_VERSION" == "1.0.1" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$HAS_CHANGES" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "$BUMP_TYPE" == "patch" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$COMMITS_SINCE_LAST_RELEASE" == "1" ]] || { echo "FAIL: commits-since-last-release"; exit 1; }
+        env:
+          CURRENT_VERSION: ${{ steps.version.outputs.current-version }}
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
+          HAS_CHANGES: ${{ steps.version.outputs.has-changes }}
+          COMMITS_SINCE_LAST_RELEASE: ${{ steps.version.outputs.commits-since-last-release }}
 
   test-basic-minor:
     name: Basic Minor Bump
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -61,17 +76,22 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
-          [[ "${{ steps.version.outputs.next-version }}" == "1.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$CURRENT_VERSION" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "$NEXT_VERSION" == "1.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$BUMP_TYPE" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          CURRENT_VERSION: ${{ steps.version.outputs.current-version }}
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-basic-major:
     name: Basic Major Bump
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -87,17 +107,22 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
-          [[ "${{ steps.version.outputs.next-version }}" == "2.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "major" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$CURRENT_VERSION" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "$NEXT_VERSION" == "2.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$BUMP_TYPE" == "major" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          CURRENT_VERSION: ${{ steps.version.outputs.current-version }}
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-no-changes:
     name: No Changes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -112,18 +137,24 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.current-version }}" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
-          [[ "${{ steps.version.outputs.next-version }}" == "1.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
-          [[ "${{ steps.version.outputs.has-changes }}" == "false" ]] || { echo "FAIL: has-changes"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "none" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$CURRENT_VERSION" == "1.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "$NEXT_VERSION" == "1.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$HAS_CHANGES" == "false" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "$BUMP_TYPE" == "none" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          CURRENT_VERSION: ${{ steps.version.outputs.current-version }}
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
+          HAS_CHANGES: ${{ steps.version.outputs.has-changes }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-bump-override:
     name: Bump Type Override
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -141,16 +172,20 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.next-version }}" == "2.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "major" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$NEXT_VERSION" == "2.0.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$BUMP_TYPE" == "major" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-monorepo:
     name: Monorepo Path Filtering
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup monorepo
         run: |
@@ -174,16 +209,20 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$HAS_CHANGES" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "$BUMP_TYPE" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          HAS_CHANGES: ${{ steps.version.outputs.has-changes }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-monorepo-no-changes:
     name: Monorepo No Changes in Path
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup monorepo
         run: |
@@ -204,16 +243,57 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.has-changes }}" == "false" ]] || { echo "FAIL: has-changes"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "none" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$HAS_CHANGES" == "false" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "$BUMP_TYPE" == "none" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          HAS_CHANGES: ${{ steps.version.outputs.has-changes }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
+
+  test-monorepo-path-with-spaces:
+    name: Monorepo Path With Spaces
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Setup monorepo
+        run: |
+          git config user.email "test@test.com"
+          git config user.name "Test"
+          # The action's own tags would count as releases: every test starts without any.
+          git tag -l | xargs -r git tag -d
+          mkdir -p "packages/my core" packages/web
+          git tag v1.0.0
+          touch "packages/my core/file.js"
+          git add "packages/my core/file.js"
+          git commit -m "feat(core): new feature"
+          touch packages/web/file.js
+          git add packages/web/file.js
+          git commit -m "fix(web): web fix"
+
+      - uses: ./
+        with:
+          paths: 'packages/web, packages/my core'
+        id: version
+
+      - name: Validate outputs
+        run: |
+          [[ "$NEXT_VERSION" == "1.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$BUMP_TYPE" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-tag-prefix:
     name: Custom Tag Prefix
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -231,16 +311,20 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.current-version-tag }}" == "release-1.0.0" ]] || { echo "FAIL: current-version-tag"; exit 1; }
-          [[ "${{ steps.version.outputs.next-version-tag }}" == "release-1.0.1" ]] || { echo "FAIL: next-version-tag"; exit 1; }
+          [[ "$CURRENT_VERSION_TAG" == "release-1.0.0" ]] || { echo "FAIL: current-version-tag"; exit 1; }
+          [[ "$NEXT_VERSION_TAG" == "release-1.0.1" ]] || { echo "FAIL: next-version-tag"; exit 1; }
+        env:
+          CURRENT_VERSION_TAG: ${{ steps.version.outputs.current-version-tag }}
+          NEXT_VERSION_TAG: ${{ steps.version.outputs.next-version-tag }}
 
   test-changelog:
     name: Changelog Generation
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -257,17 +341,21 @@ jobs:
 
       - name: Validate changelog
         run: |
-          CHANGELOG="${{ steps.version.outputs.changelog }}"
           echo "$CHANGELOG"
           [[ -n "$CHANGELOG" ]] || { echo "FAIL: changelog is empty"; exit 1; }
+          [[ "$CHANGELOG" == *"add feature"* ]] || { echo "FAIL: changelog misses the feat"; exit 1; }
+          [[ "$CHANGELOG" == *"fix bug"* ]] || { echo "FAIL: changelog misses the fix"; exit 1; }
+        env:
+          CHANGELOG: ${{ steps.version.outputs.changelog }}
 
   test-no-tags:
     name: No Tags (0.0.0 -> 0.1.0)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -282,18 +370,24 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.current-version }}" == "0.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
-          [[ "${{ steps.version.outputs.next-version }}" == "0.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
-          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$CURRENT_VERSION" == "0.0.0" ]] || { echo "FAIL: current-version"; exit 1; }
+          [[ "$NEXT_VERSION" == "0.1.0" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$HAS_CHANGES" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "$BUMP_TYPE" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          CURRENT_VERSION: ${{ steps.version.outputs.current-version }}
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
+          HAS_CHANGES: ${{ steps.version.outputs.has-changes }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-working-directory:
     name: Working Directory with .versionrc
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -318,16 +412,20 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.has-changes }}" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
-          [[ "${{ steps.version.outputs.bump-type }}" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+          [[ "$HAS_CHANGES" == "true" ]] || { echo "FAIL: has-changes"; exit 1; }
+          [[ "$BUMP_TYPE" == "minor" ]] || { echo "FAIL: bump-type"; exit 1; }
+        env:
+          HAS_CHANGES: ${{ steps.version.outputs.has-changes }}
+          BUMP_TYPE: ${{ steps.version.outputs.bump-type }}
 
   test-convco-0-6:
     name: convco 0.6 (zip releases)
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - name: Setup test repo
         run: |
@@ -345,15 +443,18 @@ jobs:
 
       - name: Validate outputs
         run: |
-          [[ "${{ steps.version.outputs.next-version }}" == "1.0.1" ]] || { echo "FAIL: next-version"; exit 1; }
+          [[ "$NEXT_VERSION" == "1.0.1" ]] || { echo "FAIL: next-version"; exit 1; }
+        env:
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
 
   test-checksum-mismatch:
     name: A download that doesn't match its checksum is refused
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: ./
         with:
@@ -363,16 +464,20 @@ jobs:
 
       - name: Validate it failed without running convco
         run: |
-          [[ "${{ steps.version.outcome }}" == "failure" ]] || { echo "FAIL: the action ran a mismatching convco"; exit 1; }
-          [[ -z "${{ steps.version.outputs.next-version }}" ]] || { echo "FAIL: convco ran"; exit 1; }
+          [[ "$OUTCOME" == "failure" ]] || { echo "FAIL: the action ran a mismatching convco"; exit 1; }
+          [[ -z "$NEXT_VERSION" ]] || { echo "FAIL: convco ran"; exit 1; }
+        env:
+          OUTCOME: ${{ steps.version.outcome }}
+          NEXT_VERSION: ${{ steps.version.outputs.next-version }}
 
   test-unknown-version:
     name: A version without a known checksum is refused
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
+          persist-credentials: false
 
       - uses: ./
         with:
@@ -382,4 +487,6 @@ jobs:
 
       - name: Validate it failed
         run: |
-          [[ "${{ steps.version.outcome }}" == "failure" ]] || { echo "FAIL: an unchecked convco was accepted"; exit 1; }
+          [[ "$OUTCOME" == "failure" ]] || { echo "FAIL: an unchecked convco was accepted"; exit 1; }
+        env:
+          OUTCOME: ${{ steps.version.outcome }}
