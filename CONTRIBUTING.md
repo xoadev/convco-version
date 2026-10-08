@@ -62,5 +62,10 @@ CI runs these on every pull request; `make lint` runs the same checks locally wi
 On every push to `main`, the [Release Draft](.github/workflows/release-draft.yml) workflow runs this action on its
 own history and drafts the next release with its changelog. A maintainer reviews and publishes it.
 
+A pull request that releases a version (a `feat:` or `fix:` title) must also point the README's examples at that
+version, since the Marketplace shows the README of the release's tag. CI works out the version the squash merge will
+release and checks every `xoadev/convco-version@…` in the README against it; the Release Draft workflow checks it
+again before drafting.
+
 Releases are immutable: once published, their tag can't be moved or deleted. Before publishing a draft, tick
 *Publish this Action to the GitHub Marketplace* (category *Continuous integration*) so the Marketplace lists it.

@@ -4,6 +4,8 @@ on:
     branches: [main]
   pull_request:
     branches: [main]
+    # edited: a new title changes the squash commit, and so the version it releases.
+    types: [opened, synchronize, reopened, edited]
 
 permissions:
   contents: read
@@ -23,7 +25,6 @@ jobs:
       - name: Run shellcheck
         uses: ludeeus/action-shellcheck@00cae500b08a931fb5698e11e79bfbd38e612a38 # 2.0.0
         with:
-          scandir: src
           severity: style
           version: v0.11.0
 
@@ -38,7 +39,7 @@ jobs:
         run: go install mvdan.cc/sh/v3/cmd/shfmt@v3.14.1
       - name: Check formatting
         # Options come from .editorconfig.
-        run: '"$(go env GOPATH)/bin/shfmt" --diff src'
+        run: '"$(go env GOPATH)/bin/shfmt" --diff src .github/scripts'
 
   actionlint:
     name: actionlint
@@ -139,3 +140,35 @@ jobs:
         run: printf '%s\n' "$PR_TITLE" | convco check --from-stdin
         env:
           PR_TITLE: ${{ github.event.pull_request.title }}
+
+  readme-version:
+    name: README examples use the released version
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Make the commit a squash merge would make
+        # The checkout is the pull request merged into its base (the first parent): one commit with the same tree and
+        # the pull request's title is what main gets.
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git reset --soft HEAD^1
+          git commit --allow-empty --no-verify -m "$PR_TITLE"
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+
+      - uses: ./
+        id: version
+
+      - name: Check the README
+        run: .github/scripts/check-readme-version.sh "$EXPECTED"
+        env:
+          EXPECTED: >-
+            ${{ steps.version.outputs.has-changes == 'true'
+              && steps.version.outputs.next-version-tag
+              || steps.version.outputs.current-version-tag }}

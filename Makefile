@@ -4,10 +4,10 @@
 lint: shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
 
 shellcheck:
-	shellcheck --severity=style src/*.sh
+	shellcheck --severity=style src/*.sh .github/scripts/*.sh
 
 shfmt:
-	shfmt --diff src
+	shfmt --diff src .github/scripts
 
 actionlint:
 	actionlint
