@@ -30,6 +30,8 @@ jobs:
         with:
           draft: true
           tag_name: ${{ steps.version.outputs.next-version-tag }}
+          # The commit this run checked, not whatever main points to when the draft is published.
+          target_commitish: ${{ github.sha }}
           name: Release ${{ steps.version.outputs.next-version }}
           body: ${{ steps.version.outputs.changelog }}
           token: ${{ github.token }}
