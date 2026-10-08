@@ -67,9 +67,9 @@ mkdir -p "$CACHE_DIR"
 ARCHIVE="$CACHE_DIR/$ASSET"
 if [ -f "$ARCHIVE" ] && [ "$(sha256 "$ARCHIVE")" = "$EXPECTED" ]; then
   echo "Using cached convco"
-  echo "cache-hit=true" >> "$GITHUB_OUTPUT"
+  echo "cache-hit=true" >>"$GITHUB_OUTPUT"
 else
-  echo "cache-hit=false" >> "$GITHUB_OUTPUT"
+  echo "cache-hit=false" >>"$GITHUB_OUTPUT"
   URL="https://github.com/convco/convco/releases/download/v${CONVCO_VERSION}/${ASSET}"
   echo "Downloading convco from $URL"
   curl -fsSL --proto '=https' --retry 3 "$URL" -o "$ARCHIVE"
@@ -92,4 +92,4 @@ if [[ "$OS" =~ CYGWIN*|MINGW*|MSYS* ]]; then
   mv "$BIN_DIR/convco.exe" "$BIN_DIR/convco"
 fi
 chmod +x "$BIN_DIR/convco"
-echo "$BIN_DIR" >> "$GITHUB_PATH"
+echo "$BIN_DIR" >>"$GITHUB_PATH"

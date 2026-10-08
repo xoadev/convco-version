@@ -6,19 +6,20 @@ PATHS="${PATHS:-.}"
 BUMP_INPUT="${BUMP_TYPE:-}"
 WORK_DIR="${WORKING_DIRECTORY:-}"
 
-CONVCO_ARGS=""
+# An array, so a path or prefix with spaces stays one argument.
+CONVCO_ARGS=()
 
 if [ -n "$WORK_DIR" ]; then
-  CONVCO_ARGS="$CONVCO_ARGS -C $WORK_DIR"
+  CONVCO_ARGS+=(-C "$WORK_DIR")
 fi
 
-CONVCO_ARGS="$CONVCO_ARGS -p $TAG_PREFIX"
+CONVCO_ARGS+=(-p "$TAG_PREFIX")
 
-IFS=',' read -ra PATH_LIST <<< "$PATHS"
+IFS=',' read -ra PATH_LIST <<<"$PATHS"
 for p in "${PATH_LIST[@]}"; do
   p=$(echo "$p" | xargs)
   if [ -n "$p" ] && [ "$p" != "." ]; then
-    CONVCO_ARGS="$CONVCO_ARGS -P $p"
+    CONVCO_ARGS+=(-P "$p")
   fi
 done
 
@@ -39,24 +40,24 @@ case "$BUMP_INPUT" in
     ;;
 esac
 
-CURRENT_VERSION=$(convco version $CONVCO_ARGS || echo "0.0.0")
+CURRENT_VERSION=$(convco version "${CONVCO_ARGS[@]}" || echo "0.0.0")
 
 if [ "$CURRENT_VERSION" = "0.0.0" ]; then
   echo "::warning::No version tags found. Starting from 0.0.0."
 fi
 
 if [ -n "$BUMP_OVERRIDE" ]; then
-  NEXT_VERSION=$(convco version $CONVCO_ARGS -b $BUMP_OVERRIDE 2>/dev/null || echo "$CURRENT_VERSION")
+  NEXT_VERSION=$(convco version "${CONVCO_ARGS[@]}" -b "$BUMP_OVERRIDE" 2>/dev/null || echo "$CURRENT_VERSION")
 else
-  NEXT_VERSION=$(convco version $CONVCO_ARGS -b 2>/dev/null || echo "$CURRENT_VERSION")
+  NEXT_VERSION=$(convco version "${CONVCO_ARGS[@]}" -b 2>/dev/null || echo "$CURRENT_VERSION")
 fi
-DETECTED_BUMP=$(convco version $CONVCO_ARGS -b --label 2>/dev/null || echo "none")
+DETECTED_BUMP=$(convco version "${CONVCO_ARGS[@]}" -b --label 2>/dev/null || echo "none")
 
 if [ -n "$BUMP_OVERRIDE" ]; then
   DETECTED_BUMP="$BUMP_INPUT"
 fi
 
-CHANGELOG=$(convco changelog $CONVCO_ARGS -m 1 2>/dev/null | tail -n +5)
+CHANGELOG=$(convco changelog "${CONVCO_ARGS[@]}" -m 1 2>/dev/null | tail -n +5)
 
 if [ "$CURRENT_VERSION" = "$NEXT_VERSION" ]; then
   HAS_CHANGES="false"
@@ -73,13 +74,15 @@ else
   COMMITS_SINCE=$(git rev-list --count HEAD 2>/dev/null || echo "0")
 fi
 
-echo "current-version=$CURRENT_VERSION" >> "$GITHUB_OUTPUT"
-echo "current-version-tag=${TAG_PREFIX}${CURRENT_VERSION}" >> "$GITHUB_OUTPUT"
-echo "next-version=$NEXT_VERSION" >> "$GITHUB_OUTPUT"
-echo "next-version-tag=${TAG_PREFIX}${NEXT_VERSION}" >> "$GITHUB_OUTPUT"
-echo "has-changes=$HAS_CHANGES" >> "$GITHUB_OUTPUT"
-echo "bump-type=$FINAL_BUMP" >> "$GITHUB_OUTPUT"
-echo "commits-since-last-release=$COMMITS_SINCE" >> "$GITHUB_OUTPUT"
+{
+  echo "current-version=$CURRENT_VERSION"
+  echo "current-version-tag=${TAG_PREFIX}${CURRENT_VERSION}"
+  echo "next-version=$NEXT_VERSION"
+  echo "next-version-tag=${TAG_PREFIX}${NEXT_VERSION}"
+  echo "has-changes=$HAS_CHANGES"
+  echo "bump-type=$FINAL_BUMP"
+  echo "commits-since-last-release=$COMMITS_SINCE"
+} >>"$GITHUB_OUTPUT"
 
 # A delimiter nobody can know in advance: a changelog line equal to a fixed one would end the value there, and the
 # lines after it would set other outputs.
@@ -88,7 +91,7 @@ DELIMITER="CHANGELOG_$(od -An -N16 -tx1 /dev/urandom | tr -d ' \n')"
   echo "changelog<<$DELIMITER"
   echo "$CHANGELOG"
   echo "$DELIMITER"
-} >> "$GITHUB_OUTPUT"
+} >>"$GITHUB_OUTPUT"
 
 echo "Current version: ${TAG_PREFIX}${CURRENT_VERSION}"
 echo "Next version: ${TAG_PREFIX}${NEXT_VERSION}"
