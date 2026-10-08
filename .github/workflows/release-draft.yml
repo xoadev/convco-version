@@ -24,12 +24,20 @@ jobs:
       - uses: ./
         id: version
 
+      - name: Check the README uses the new version
+        if: steps.version.outputs.has-changes == 'true'
+        run: .github/scripts/check-readme-version.sh "$NEXT_VERSION_TAG"
+        env:
+          NEXT_VERSION_TAG: ${{ steps.version.outputs.next-version-tag }}
+
       - name: Create Release Draft
         if: steps.version.outputs.has-changes == 'true'
         uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           draft: true
           tag_name: ${{ steps.version.outputs.next-version-tag }}
+          # The commit this run checked, not whatever main points to when the draft is published.
+          target_commitish: ${{ github.sha }}
           name: Release ${{ steps.version.outputs.next-version }}
           body: ${{ steps.version.outputs.changelog }}
           token: ${{ github.token }}

@@ -12,6 +12,7 @@
 
 - CI runs ShellCheck (style severity), shfmt, actionlint, zizmor, markdownlint, yamllint (strict), editorconfig-checker and typos; `make lint` runs them locally.
 - Values from `${{ }}` reach `run:` scripts through `env:`, never inline.
+- A pull request whose title releases a version updates the README's examples to it; `.github/scripts/check-readme-version.sh` enforces it in CI.
 
 ## Testing
 
