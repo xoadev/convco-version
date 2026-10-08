@@ -1,5 +1,7 @@
 name: 'convco-version'
-description: 'Calculate current and next version using conventional commits'
+description: >-
+  Calculate the current and next semantic version, bump type and changelog from Conventional Commits with convco
+author: 'xoa.dev'
 inputs:
   tag-prefix:
     description: 'Prefix used in front of the semantic version'
