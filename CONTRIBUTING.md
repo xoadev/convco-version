@@ -61,3 +61,6 @@ CI runs these on every pull request; `make lint` runs the same checks locally wi
 
 On every push to `main`, the [Release Draft](.github/workflows/release-draft.yml) workflow runs this action on its
 own history and drafts the next release with its changelog. A maintainer reviews and publishes it.
+
+Releases are immutable: once published, their tag can't be moved or deleted. Before publishing a draft, tick
+*Publish this Action to the GitHub Marketplace* (category *Continuous integration*) so the Marketplace lists it.

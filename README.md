@@ -47,7 +47,7 @@ keep in sync, no Docker image to build, and the same answer on Linux, macOS and 
   with:
     fetch-depth: 0
 
-- uses: xoadev/convco-version@v1.0.1
+- uses: xoadev/convco-version@v1.1.0
   id: version
 
 - run: echo "Next version is ${{ steps.version.outputs.next-version }}"
@@ -99,7 +99,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: xoadev/convco-version@v1.0.1
+      - uses: xoadev/convco-version@v1.1.0
         id: version
 
       - name: Create Release
@@ -128,7 +128,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: xoadev/convco-version@v1.0.1
+      - uses: xoadev/convco-version@v1.1.0
         id: version
 
       - name: Build
@@ -142,7 +142,7 @@ jobs:
 ### Force bump type
 
 ```yaml
-- uses: xoadev/convco-version@v1.0.1
+- uses: xoadev/convco-version@v1.1.0
   id: version
   with:
     bump-type: major  # Force a major release regardless of commits
@@ -174,7 +174,7 @@ when calculating the next version.
 
 ```yaml
 # packages/core/package.json
-- uses: xoadev/convco-version@v1.0.1
+- uses: xoadev/convco-version@v1.1.0
   with:
     paths: 'packages/core'
 ```
@@ -185,7 +185,7 @@ Only commits touching `packages/core/**` will affect the version.
 
 ```yaml
 # packages/web and packages/shared
-- uses: xoadev/convco-version@v1.0.1
+- uses: xoadev/convco-version@v1.1.0
   with:
     paths: 'packages/web,packages/shared'
 ```
@@ -197,7 +197,7 @@ Commits touching either path are considered together.
 Use `working-directory` to run convco from a subdirectory that has its own `.versionrc`:
 
 ```yaml
-- uses: xoadev/convco-version@v1.0.1
+- uses: xoadev/convco-version@v1.1.0
   with:
     working-directory: 'packages/core'
     paths: 'packages/core'
@@ -239,7 +239,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: xoadev/convco-version@v1.0.1
+      - uses: xoadev/convco-version@v1.1.0
         id: version
         with:
           paths: 'packages/core'
@@ -259,7 +259,7 @@ jobs:
         with:
           fetch-depth: 0
 
-      - uses: xoadev/convco-version@v1.0.1
+      - uses: xoadev/convco-version@v1.1.0
         id: version
         with:
           paths: 'packages/web'
@@ -320,7 +320,7 @@ made of plain Bash, so it starts in seconds:
 - **Pinned dependencies.** The actions this action uses are pinned by commit SHA, so pinning this action pins
   everything it runs.
 - **Pin it yourself.** For the strongest guarantee, reference this action by commit SHA with the version in a comment
-  (`xoadev/convco-version@<sha> # v1.0.1`) and let [Dependabot](https://docs.github.com/code-security/dependabot)
+  (`xoadev/convco-version@<sha> # v1.1.0`) and let [Dependabot](https://docs.github.com/code-security/dependabot)
   keep it up to date.
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
