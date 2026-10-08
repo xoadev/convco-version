@@ -3,6 +3,7 @@
 [![CI](https://github.com/xoadev/convco-version/actions/workflows/ci.yml/badge.svg)](https://github.com/xoadev/convco-version/actions/workflows/ci.yml)
 [![Integration Tests](https://github.com/xoadev/convco-version/actions/workflows/test.yml/badge.svg)](https://github.com/xoadev/convco-version/actions/workflows/test.yml)
 [![Release](https://img.shields.io/github/v/release/xoadev/convco-version?sort=semver)](https://github.com/xoadev/convco-version/releases)
+[![GitHub Marketplace](https://img.shields.io/badge/Marketplace-convco--version-blue.svg?logo=github)](https://github.com/marketplace/actions/convco-version)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196.svg)](https://www.conventionalcommits.org/)
 
@@ -12,6 +13,8 @@ project from its [Conventional Commits](https://www.conventionalcommits.org/), u
 
 Tag your releases, write `feat:` and `fix:` commits, and let the action tell you what comes next: no version files to
 keep in sync, no Docker image to build, and the same answer on Linux, macOS and Windows.
+
+Available on the [GitHub Marketplace](https://github.com/marketplace/actions/convco-version).
 
 ## Contents
 
