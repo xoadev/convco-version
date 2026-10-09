@@ -11,6 +11,8 @@ Thanks for helping improve convco-version! This guide covers what you need to op
 | [`src/calculate.sh`](src/calculate.sh) | Runs convco and writes the step's outputs |
 | [`.github/workflows/test.yml`](.github/workflows/test.yml) | Integration tests, run against the action itself |
 | [`.github/workflows/ci.yml`](.github/workflows/ci.yml) | Linters and commit checks |
+| [`.github/workflows/release-draft.yml`](.github/workflows/release-draft.yml) | Drafts the next release on every push to `main` |
+| [`.github/scripts/check-readme-version.sh`](.github/scripts/check-readme-version.sh) | Checks the README's examples use the version being released |
 
 ## Commits
 
@@ -32,11 +34,12 @@ change. There is no unit test suite on purpose: the integration tests are the so
 
 ## Linters
 
-CI runs these on every pull request; `make lint` runs the same checks locally with the tools on your `PATH`.
+CI runs these on every pull request; `make lint` runs the same checks locally with the tools on your `PATH`, at the
+versions pinned in [`ci.yml`](.github/workflows/ci.yml).
 
 | Linter | Checks |
 | --- | --- |
-| [ShellCheck](https://www.shellcheck.net/) | Bash scripts in `src/` |
+| [ShellCheck](https://www.shellcheck.net/) | Bash scripts in `src/` and `.github/scripts/` |
 | [shfmt](https://github.com/mvdan/sh) | Bash formatting, configured in [`.editorconfig`](.editorconfig) |
 | [actionlint](https://github.com/rhysd/actionlint) | Workflow syntax and expressions |
 | [zizmor](https://docs.zizmor.sh/) | Workflow and action security, configured in [`.github/zizmor.yml`](.github/zizmor.yml) |
@@ -62,10 +65,10 @@ CI runs these on every pull request; `make lint` runs the same checks locally wi
 On every push to `main`, the [Release Draft](.github/workflows/release-draft.yml) workflow runs this action on its
 own history and drafts the next release with its changelog. A maintainer reviews and publishes it.
 
-A pull request that releases a version (a `feat:` or `fix:` title) must also point the README's examples at that
-version, since the Marketplace shows the README of the release's tag. CI works out the version the squash merge will
-release and checks every `xoadev/convco-version@…` in the README against it; the Release Draft workflow checks it
-again before drafting.
+A pull request that releases a version (a `feat:` or `fix:` title, or a breaking change with `!`) must also point the
+README's examples at that version, since the Marketplace shows the README of the release's tag. CI works out the
+version the squash merge will release and checks every `xoadev/convco-version@…` in the README against it; the Release
+Draft workflow checks it again before drafting.
 
 Releases are immutable: once published, their tag can't be moved or deleted. Before publishing a draft, tick
 *Publish this Action to the GitHub Marketplace* (category *Continuous integration*) so the Marketplace lists it.
