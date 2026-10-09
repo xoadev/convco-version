@@ -53,7 +53,9 @@ Available on the [GitHub Marketplace](https://github.com/marketplace/actions/con
 - uses: xoadev/convco-version@v1.1.0
   id: version
 
-- run: echo "Next version is ${{ steps.version.outputs.next-version }}"
+- run: echo "Next version is $NEXT_VERSION"
+  env:
+    NEXT_VERSION: ${{ steps.version.outputs.next-version }}
 ```
 
 ## Inputs
@@ -110,6 +112,8 @@ jobs:
         uses: softprops/action-gh-release@v3.0.3
         with:
           tag_name: ${{ steps.version.outputs.next-version-tag }}
+          # The commit this run checked, not whatever main points to when the draft is published.
+          target_commitish: ${{ github.sha }}
           name: Release ${{ steps.version.outputs.next-version }}
           body: ${{ steps.version.outputs.changelog }}
           draft: true
@@ -170,7 +174,8 @@ jobs:
 ## Monorepo
 
 The `paths` input filters commits that affect specific directories. This is essential for monorepos where each package
-maintains its own version.
+maintains its own version. Give each package its own `tag-prefix` too: convco only reads the tags that start with it,
+so packages sharing the default `v` would share their tags and their version.
 
 [limen](https://github.com/xoadev/limen) versions each of its packs on its own with `paths` and `tag-prefix`, as the
 note [Immutable releases with convco-version](https://xoa.dev/notes/immutable-releases-with-convco-version/) shows.
@@ -183,13 +188,14 @@ when calculating the next version.
 ### Single package
 
 ```yaml
-# packages/core/package.json
+# packages/core, tagged core-v1.0.0, core-v1.1.0…
 - uses: xoadev/convco-version@v1.1.0
   with:
     paths: 'packages/core'
+    tag-prefix: 'core-v'
 ```
 
-Only commits touching `packages/core/**` will affect the version.
+Only commits touching `packages/core/**` will affect the version, counted from the last `core-v` tag.
 
 ### Multiple packages
 
@@ -198,6 +204,7 @@ Only commits touching `packages/core/**` will affect the version.
 - uses: xoadev/convco-version@v1.1.0
   with:
     paths: 'packages/web,packages/shared'
+    tag-prefix: 'web-v'
 ```
 
 Commits touching either path are considered together.
@@ -211,9 +218,13 @@ Use `working-directory` to run convco from a subdirectory that has its own `.ver
   with:
     working-directory: 'packages/core'
     paths: 'packages/core'
+    tag-prefix: 'core-v'
 ```
 
 ### Full workflow with matrix
+
+One job per package, each with its own `paths` and `tag-prefix`. `has-changes` is `false` for a package no commit
+touched since its last tag, so it gets no draft.
 
 ```yaml
 name: Release Packages
@@ -225,25 +236,11 @@ permissions:
   contents: write
 
 jobs:
-  changes:
+  release:
     runs-on: ubuntu-latest
-    outputs:
-      core: ${{ steps.filter.outputs.core }}
-      web: ${{ steps.filter.outputs.web }}
-    steps:
-      - uses: dorny/paths-filter@v4.0.3
-        id: filter
-        with:
-          filters: |
-            core:
-              - 'packages/core/**'
-            web:
-              - 'packages/web/**'
-
-  release-core:
-    needs: changes
-    if: needs.changes.outputs.core == 'true'
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        package: [core, web]
     steps:
       - uses: actions/checkout@v7.0.1
         with:
@@ -252,31 +249,16 @@ jobs:
       - uses: xoadev/convco-version@v1.1.0
         id: version
         with:
-          paths: 'packages/core'
+          paths: packages/${{ matrix.package }}
+          tag-prefix: ${{ matrix.package }}-v
 
-      - uses: softprops/action-gh-release@v3.0.3
+      - name: Create Release
+        if: steps.version.outputs.has-changes == 'true'
+        uses: softprops/action-gh-release@v3.0.3
         with:
-          tag_name: core-${{ steps.version.outputs.next-version-tag }}
-          body: ${{ steps.version.outputs.changelog }}
-          draft: true
-
-  release-web:
-    needs: changes
-    if: needs.changes.outputs.web == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7.0.1
-        with:
-          fetch-depth: 0
-
-      - uses: xoadev/convco-version@v1.1.0
-        id: version
-        with:
-          paths: 'packages/web'
-
-      - uses: softprops/action-gh-release@v3.0.3
-        with:
-          tag_name: web-${{ steps.version.outputs.next-version-tag }}
+          tag_name: ${{ steps.version.outputs.next-version-tag }}
+          target_commitish: ${{ github.sha }}
+          name: ${{ matrix.package }} ${{ steps.version.outputs.next-version }}
           body: ${{ steps.version.outputs.changelog }}
           draft: true
 ```
