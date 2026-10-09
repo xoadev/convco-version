@@ -115,6 +115,10 @@ jobs:
           draft: true
 ```
 
+[limen](https://github.com/xoadev/limen) uses this pattern: a draft release on every push, published by a workflow
+run by hand, with immutable releases. The note
+[Immutable releases with convco-version](https://xoa.dev/notes/immutable-releases-with-convco-version/) shows how.
+
 ### Build artifact with version
 
 ```yaml
@@ -167,6 +171,9 @@ jobs:
 
 The `paths` input filters commits that affect specific directories. This is essential for monorepos where each package
 maintains its own version.
+
+[limen](https://github.com/xoadev/limen) versions each of its packs on its own with `paths` and `tag-prefix`, as the
+note [Immutable releases with convco-version](https://xoa.dev/notes/immutable-releases-with-convco-version/) shows.
 
 ### How path filtering works
 
