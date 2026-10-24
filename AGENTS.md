@@ -72,7 +72,9 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
 
 ## Spec, documentation and knowledge
 
-- **The spec is the source of truth.** If the code has to diverge, the spec changes first.
+- **The spec is the source of truth.** If the code has to diverge, the spec changes first. A
+  contradiction between spec, documentation and code is raised before acting; no side is picked in
+  silence.
 - **Documentation is updated in the same pull request** that makes it wrong. Before the commit,
   search for what the change contradicts (the old name, the old behaviour), not only for where the
   new thing goes.
@@ -113,7 +115,8 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
 
 This block is shared by the open source repositories of XOA Desarrollo and its source is
 <https://xoa.dev/_dev/OSS_AGENTS.md>: it changes there, never in a repository's copy, and
-`make agents-sync` brings it in. What belongs to each repository goes below.
+`make agents-sync` brings it in. What belongs to each repository goes below and prevails where it
+narrows what is above.
 <!-- xoadev:end -->
 
 ## Versioning

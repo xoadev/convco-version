@@ -27,18 +27,10 @@ editorconfig:
 typos:
 	typos
 
-# The head of AGENTS.md, everything above AGENTS_MARK, is shared by our repositories and lives at AGENTS_URL.
+# The shared head of AGENTS.md, above its <!-- xoadev:end --> line, comes from AGENTS_URL.
 AGENTS_URL := https://xoa.dev/_dev/OSS_AGENTS.md
-AGENTS_MARK := <!-- xoadev:end -->
+AGENTS_SCRIPT := https://xoa.dev/_dev/agents.sh
 
-agents-sync: ## Rewrite the shared head of AGENTS.md from AGENTS_URL
-	@grep -qx '$(AGENTS_MARK)' AGENTS.md || { echo "AGENTS.md has no '$(AGENTS_MARK)' line: add it below the shared head" >&2; exit 1; }
-	@tmp=$$(mktemp) && trap 'rm -f "$$tmp"' EXIT && curl -fsS --max-time 20 '$(AGENTS_URL)' -o "$$tmp" \
-		&& sed -n '/^$(AGENTS_MARK)$$/,$$p' AGENTS.md >> "$$tmp" && cat "$$tmp" > AGENTS.md
-
-agents-check: ## Fail if the shared head of AGENTS.md differs from AGENTS_URL (warns when offline)
-	@tmp=$$(mktemp) && trap 'rm -f "$$tmp"' EXIT; \
-	if ! curl -fsS --max-time 20 '$(AGENTS_URL)' -o "$$tmp"; then \
-		echo "warning: $(AGENTS_URL) unreachable, AGENTS.md not checked" >&2; exit 0; fi; \
-	sed '/^$(AGENTS_MARK)$$/,$$d' AGENTS.md | diff -u "$$tmp" - >&2 \
-		|| { echo "AGENTS.md: the shared head differs from $(AGENTS_URL); run make agents-sync" >&2; exit 1; }
+agents-sync agents-check: ## Sync (agents-sync) or check (agents-check) the shared head of AGENTS.md
+	@if s=$$(curl -fsS --max-time 20 '$(AGENTS_SCRIPT)'); then sh -c "$$s" agents $(@:agents-%=%) '$(AGENTS_URL)'; \
+	else echo "warning: $(AGENTS_SCRIPT) unreachable, $@ not run" >&2; [ $@ = agents-check ]; fi
