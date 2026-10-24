@@ -30,12 +30,14 @@ breaking change (`feat!: drop convco 0.6`).
 
 Every feature is covered by an integration test in [`test.yml`](.github/workflows/test.yml): each job builds a small
 git history, runs the action with `uses: ./` and checks its outputs. Add a job there for any behavior you add or
-change. There is no unit test suite on purpose: the integration tests are the source of truth.
+change. There is no unit test suite on purpose: the integration tests are the source of truth. They only run on a GitHub
+runner, so `make test` runs nothing locally.
 
 ## Linters
 
-CI runs these on every pull request; `make lint` runs the same checks locally with the tools on your `PATH`, at the
-versions pinned in [`ci.yml`](.github/workflows/ci.yml).
+`make lint` runs these, plus `make agents-check` on the shared head of [`AGENTS.md`](AGENTS.md), with the tools on
+your `PATH`. CI runs the same `make lint` on every pull request, after installing the versions pinned in
+[`ci.yml`](.github/workflows/ci.yml).
 
 | Linter | Checks |
 | --- | --- |

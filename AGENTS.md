@@ -54,7 +54,13 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
 - **Everything runs through `make`**: build, lint, tests, deploy. CI calls the same targets, so what
   is checked is defined once and cannot drift from a laptop. If no target covers what you need, add
   the target; do not run it by hand.
-- The stack's official formatter and linter, no debate. `make lint` green before pushing.
+- **Every repository has `make lint` and `make test`, and CI runs them on every pull request.** A
+  repository without them adds them before its next feature. `make lint` green before pushing.
+- **Strict linters**: the stack's official ones, with warnings as errors, and the cross-cutting ones
+  for the files there are (shellcheck, actionlint, markdownlint, typos). The formatter, no debate.
+- **A change in behaviour comes with its test in the same pull request**, and a fixed bug with the
+  test that reproduces it. Integration tests over real flows are the base; unit tests only where
+  they pay off (domain, parsers, state machines).
 - **A check is never disabled or relaxed** to make it green. A silenced lint carries its reason on
   the same line. If something outside the change keeps it red, say so in the pull request.
 - **A test documents a behaviour and fails when the promise breaks**: break the code on purpose and
@@ -127,12 +133,12 @@ narrows what is above.
 
 ## Linting
 
-- CI runs ShellCheck (style severity), shfmt, actionlint, zizmor, markdownlint, yamllint (strict), editorconfig-checker and typos; `make lint` runs them locally.
+- `make lint` runs `agents-check`, ShellCheck (style severity), shfmt, actionlint, zizmor, markdownlint, yamllint (strict), editorconfig-checker and typos; the Lint job in `ci.yml` installs them at pinned versions and runs `make lint`.
 - A pull request whose title releases a version updates the README's examples to it; `.github/scripts/check-readme-version.sh` enforces it in CI.
 
 ## Testing
 
-- All features must be verified via integration tests running in GitHub Actions workflows (`.github/workflows/test.yml`).
+- All features must be verified via integration tests running in GitHub Actions workflows (`.github/workflows/test.yml`). They run the action with `uses: ./`, which only a runner can do: `make test` runs nothing locally and says so.
 - Do not create unit test suites (like Bats) unless explicitly requested. Integration tests are the source of truth.
 
 ## Commits

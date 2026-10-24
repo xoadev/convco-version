@@ -64,7 +64,7 @@ runs:
     - name: Install convco
       id: install
       shell: bash
-      run: ${{ github.action_path }}/src/install.sh
+      run: '"$GITHUB_ACTION_PATH/src/install.sh"'
       env:
         CONVCO_VERSION: ${{ inputs.convco-version }}
         CONVCO_SHA256: ${{ inputs.convco-sha256 }}
@@ -72,7 +72,7 @@ runs:
     - name: Calculate version info
       id: convco
       shell: bash
-      run: ${{ github.action_path }}/src/calculate.sh
+      run: '"$GITHUB_ACTION_PATH/src/calculate.sh"'
       env:
         TAG_PREFIX: ${{ inputs.tag-prefix }}
         PATHS: ${{ inputs.paths }}

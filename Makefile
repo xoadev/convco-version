@@ -1,7 +1,12 @@
-.PHONY: lint agents-sync agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
+.PHONY: lint test agents-sync agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
 
-# The same checks as CI; each needs its tool on the PATH (see CONTRIBUTING.md).
-lint: shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
+# CI runs this same target; each linter needs its tool on the PATH, at the version ci.yml installs.
+lint: agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
+
+# ponytail: the integration tests are the jobs of test.yml, which run this action with `uses: ./` on every pull
+# request; only a GitHub runner does that, so nothing runs here. `act` could run them locally if that is ever needed.
+test:
+	@echo 'The integration tests run in GitHub Actions on every pull request: .github/workflows/test.yml'
 
 shellcheck:
 	shellcheck --severity=style src/*.sh .github/scripts/*.sh
