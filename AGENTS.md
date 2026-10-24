@@ -132,16 +132,18 @@ narrows what is above.
 
 - In `action.yml`, actions are pinned by commit SHA too: a workflow that pins this action by SHA does not pin what it uses.
 - A new convco version needs the sha256 of each of its assets in `src/install.sh`, as GitHub reports them for the release (`gh api repos/convco/convco/releases/tags/v<version> --jq '.assets[] | "\(.name) \(.digest)"'`).
-- Dependabot updates the actions (workflows and `action.yml`); Renovate only updates convco's default version.
+- Dependabot updates the actions (workflows and `action.yml`) and the linters' lockfiles in `.github/etc`; Renovate only updates convco's default version.
 
 ## Linting
 
 - `make lint` runs `agents-check`, ShellCheck (style severity), shfmt, actionlint, zizmor, markdownlint, yamllint (strict), editorconfig-checker and typos; the Lint job in `ci.yml` installs them at pinned versions and runs `make lint`.
+- The pip and npm linters are installed from lockfiles in `.github/etc`, transitive dependencies included: after editing `requirements.in`, regenerate `requirements.txt` with `pip-compile --generate-hashes --strip-extras requirements.in`; after editing `package.json`, run `npm install --package-lock-only`.
 - A pull request whose title releases a version updates the README's examples to it; `.github/scripts/check-readme-version.sh` enforces it in CI.
 
 ## Testing
 
-- All features must be verified via integration tests running in GitHub Actions workflows (`.github/workflows/test.yml`). They run the action with `uses: ./`, which only a runner can do: `make test` runs nothing locally and says so.
+- All features must be verified via integration tests running in GitHub Actions workflows (`.github/workflows/test.yml`), whose jobs run the action with `uses: ./`.
+- `make test` runs `.github/scripts/test.sh`: the same cases against `src/*.sh` and throwaway git repositories, without a runner (it needs the network to download convco). A behavior added or changed gets a case in both; CI runs `make test` too.
 - Do not create unit test suites (like Bats) unless explicitly requested. Integration tests are the source of truth.
 
 ## Commits

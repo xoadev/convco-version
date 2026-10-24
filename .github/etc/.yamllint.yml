@@ -1,4 +1,5 @@
 extends: relaxed
+ignore-from-file: .gitignore
 
 rules:
   line-length:

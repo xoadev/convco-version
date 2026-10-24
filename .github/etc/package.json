@@ -1,0 +1,7 @@
+{
+  "private": true,
+  "description": "The npm-installed linters, at the versions make lint is checked against",
+  "devDependencies": {
+    "markdownlint-cli2": "0.23.3"
+  }
+}

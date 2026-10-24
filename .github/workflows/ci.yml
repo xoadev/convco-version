@@ -23,17 +23,18 @@ jobs:
         with:
           persist-credentials: false
 
-      # ponytail: the tools are pinned, their dependencies are not; a package-lock.json and a requirements file with
-      # hashes would pin those too.
+      # Dependencies included: go checks each module against go.sum, and pip and npm install the lockfiles in
+      # .github/etc, which Dependabot keeps up to date.
       - name: Install the linters
         run: |
           go install mvdan.cc/sh/v3/cmd/shfmt@v3.14.1
           go install github.com/rhysd/actionlint/cmd/actionlint@v1.7.12
           echo "$(go env GOPATH)/bin" >> "$GITHUB_PATH"
-          pipx install shellcheck-py==0.11.0.1 zizmor==1.30.1 yamllint==1.38.0 typos==1.51.1
-
-      - name: Install markdownlint
-        run: npm install --global markdownlint-cli2@0.23.2 # zizmor: ignore[adhoc-packages] one CLI, exact version
+          python3 -m venv "$RUNNER_TEMP/linters"
+          "$RUNNER_TEMP/linters/bin/pip" install --require-hashes --no-deps -r .github/etc/requirements.txt
+          echo "$RUNNER_TEMP/linters/bin" >> "$GITHUB_PATH"
+          npm ci --prefix .github/etc --ignore-scripts
+          echo "$PWD/.github/etc/node_modules/.bin" >> "$GITHUB_PATH"
 
       - uses: editorconfig-checker/action-editorconfig-checker@51f63319f592f97930c73d9c46184d20bd206393 # v3.0.0
         with:

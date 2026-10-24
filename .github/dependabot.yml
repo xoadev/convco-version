@@ -13,3 +13,30 @@ updates:
     groups:
       github-actions:
         patterns: ['*']
+
+  # The linters' lockfiles: markdownlint-cli2, and the pip-installed ones in requirements.in.
+  - package-ecosystem: npm
+    directory: /.github/etc
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      npm:
+        patterns: ['*']
+
+  - package-ecosystem: pip
+    directory: /.github/etc
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      pip:
+        patterns: ['*']

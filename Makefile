@@ -3,10 +3,9 @@
 # CI runs this same target; each linter needs its tool on the PATH, at the version ci.yml installs.
 lint: agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
 
-# ponytail: the integration tests are the jobs of test.yml, which run this action with `uses: ./` on every pull
-# request; only a GitHub runner does that, so nothing runs here. `act` could run them locally if that is ever needed.
+# The action's scripts against local git repositories; test.yml also runs the action itself, which needs a runner.
 test:
-	@echo 'The integration tests run in GitHub Actions on every pull request: .github/workflows/test.yml'
+	.github/scripts/test.sh
 
 shellcheck:
 	shellcheck --severity=style src/*.sh .github/scripts/*.sh
@@ -21,7 +20,7 @@ zizmor:
 	zizmor --config .github/zizmor.yml .
 
 markdownlint:
-	markdownlint-cli2 --config .github/etc/.markdownlint.json '**/*.md'
+	markdownlint-cli2 --config .github/etc/.markdownlint.json '**/*.md' '#**/node_modules'
 
 yamllint:
 	yamllint --strict --config-file .github/etc/.yamllint.yml .
