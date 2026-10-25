@@ -34,6 +34,11 @@ jobs:
         with:
           version: 0.13.1
           enable-cache: false
+      # The Go that builds shfmt and actionlint below, and checks their modules against go.sum.
+      - uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+        with:
+          go-version: 1.27.2
+          cache: false
 
       # Dependencies included: go checks each module against go.sum, and uv and pnpm install the lockfiles in
       # .github/etc, which Dependabot keeps up to date.
