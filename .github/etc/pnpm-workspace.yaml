@@ -1,0 +1,4 @@
+# pnpm settings of the linters in package.json; no build script of any dependency runs.
+saveExact: true
+# One week, in minutes: the shared AGENTS.md's rule for new versions.
+minimumReleaseAge: 10080

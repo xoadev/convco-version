@@ -41,7 +41,8 @@ unit test suite on purpose: the integration tests are the source of truth.
 `make lint` runs these, plus `make agents-check` on the shared head of [`AGENTS.md`](AGENTS.md), with the tools on
 your `PATH`. CI runs the same `make lint` on every pull request, after installing the versions pinned in
 [`ci.yml`](.github/workflows/ci.yml) and, with their dependencies, in the lockfiles of [`.github/etc`](.github/etc):
-`requirements.txt` (with hashes) for the pip-installed linters and `package-lock.json` for markdownlint.
+`requirements.txt` (with hashes) for the pip-installed linters and `pnpm-lock.yaml` for markdownlint, through the pnpm
+of `package.json`'s `packageManager` (`pnpm install --frozen-lockfile` in `.github/etc`).
 
 | Linter | Checks |
 | --- | --- |
@@ -60,7 +61,7 @@ your `PATH`. CI runs the same `make lint` on every pull request, after installin
 - Actions are pinned by commit SHA with the version in a comment. [Dependabot](.github/dependabot.yml) keeps them and
   the linters' lockfiles up to date, and [Renovate](renovate.json) keeps convco's default version up to date.
 - After changing a linter's version, regenerate its lockfile in `.github/etc`: `pip-compile --generate-hashes
-  --strip-extras requirements.in` for `requirements.in`, `npm install --package-lock-only` for `package.json`.
+  --strip-extras requirements.in` for `requirements.in`, `pnpm install --lockfile-only` for `package.json`.
 - A new convco version needs the sha256 of each of its assets in [`src/install.sh`](src/install.sh), as GitHub reports
   them for the release:
 

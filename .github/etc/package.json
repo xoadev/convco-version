@@ -1,6 +1,7 @@
 {
   "private": true,
-  "description": "The npm-installed linters, at the versions make lint is checked against",
+  "description": "The pnpm-installed linters, at the versions make lint is checked against",
+  "packageManager": "pnpm@11.28.6",
   "devDependencies": {
     "markdownlint-cli2": "0.23.3"
   }

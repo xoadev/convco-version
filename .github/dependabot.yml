@@ -14,7 +14,8 @@ updates:
       github-actions:
         patterns: ['*']
 
-  # The linters' lockfiles: markdownlint-cli2, and the pip-installed ones in requirements.in.
+  # The linters' lockfiles: markdownlint-cli2's pnpm-lock.yaml, which the npm ecosystem covers, and the pip-installed
+  # ones in requirements.in.
   - package-ecosystem: npm
     directory: /.github/etc
     schedule:

@@ -76,6 +76,9 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
   No open security advisories.
 - **Pinned versions, at least a week old**: an exact version, never a range or `latest`; actions by
   SHA with the version in a comment. Dependabot with the same cooldown.
+- **Node through pnpm**, never npm or yarn: its version pinned in `package.json`'s `packageManager`;
+  `pnpm install --frozen-lockfile` in CI; a one-week `minimumReleaseAge`, and install scripts only
+  for the packages that need them.
 - In workflows, secrets and `${{ }}` values reach `run:` through `env:`, never interpolated, and the
   token only reads unless the job asks for more.
 
@@ -137,7 +140,7 @@ narrows what is above.
 ## Linting
 
 - `make lint` runs `agents-check`, ShellCheck (style severity), shfmt, actionlint, zizmor, markdownlint, yamllint (strict), editorconfig-checker and typos; the Lint job in `ci.yml` installs them at pinned versions and runs `make lint`.
-- The pip and npm linters are installed from lockfiles in `.github/etc`, transitive dependencies included: after editing `requirements.in`, regenerate `requirements.txt` with `pip-compile --generate-hashes --strip-extras requirements.in`; after editing `package.json`, run `npm install --package-lock-only`.
+- The pip and pnpm linters are installed from lockfiles in `.github/etc`, transitive dependencies included: after editing `requirements.in`, regenerate `requirements.txt` with `pip-compile --generate-hashes --strip-extras requirements.in`; after editing `package.json`, run `pnpm install --lockfile-only` (pnpm pinned in its `packageManager`; `pnpm-workspace.yaml` sets the one-week `minimumReleaseAge`, and no dependency's install script runs).
 - A pull request whose title releases a version updates the README's examples to it; `.github/scripts/check-readme-version.sh` enforces it in CI.
 
 ## Testing
