@@ -48,6 +48,8 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
 - **Errors say what to do**: `no SSH key at /data/id_ed25519 ([ssh].identity in limen.toml)`, not
   `file not found`.
 - No `TODO` in the code: what is pending goes to an issue.
+- **Secrets stay out of the repository**: not in code, logs or error messages. What is committed
+  encrypted says so in its name, and a check proves it is.
 
 ## Commands and checks
 
@@ -79,6 +81,8 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
 - **Node through pnpm**, never npm or yarn: its version pinned in `package.json`'s `packageManager`;
   `pnpm install --frozen-lockfile` in CI; a one-week `minimumReleaseAge`, and install scripts only
   for the packages that need them.
+- **Python through uv**: the Python version and dependencies pinned in `uv.lock`, with hashes;
+  `uv sync --frozen` in CI, and `uvx` with an exact version for standalone tools.
 - In workflows, secrets and `${{ }}` values reach `run:` through `env:`, never interpolated, and the
   token only reads unless the job asks for more.
 
@@ -87,6 +91,10 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
 - **The spec is the source of truth.** If the code has to diverge, the spec changes first. A
   contradiction between spec, documentation and code is raised before acting; no side is picked in
   silence.
+- **What is published only grows, once there is production**: in an API, a schema, an event or a
+  format real users already rely on, things are added, never removed or renamed. Breaking it is a
+  task to prepare, not a change in a pull request. While a project is in testing or has no users,
+  break what is needed; the repository says in its own part which of the two it is in.
 - **Documentation is updated in the same pull request** that makes it wrong. Before the commit,
   search for what the change contradicts (the old name, the old behaviour), not only for where the
   new thing goes.
@@ -99,7 +107,8 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
 ## Git and pull requests
 
 - **Nothing goes straight to `main`**: everything through a pull request. Branches `feat/`, `fix/`
-  and `chore/` from `origin/main`: the local `main` may lag behind.
+  and `chore/` from `origin/main`, in a worktree of your own: never in the person's checkout nor on
+  a local `main`, which may lag behind.
 - **Work iterates on one branch** while it is being built and tried: new work goes to the branch and
   the pull request already open. **A new pull request is opened only when asked for.**
 - **Squash is the only merge strategy**: the pull request title becomes the commit subject and its
@@ -115,11 +124,15 @@ behind, the smallest thing that fails if the logic breaks. Trivial one-liners ne
   preamble and no tour of the options left out.
 - **When done, or when you need an answer, close with a brief summary**: what is done and verified,
   what failed or was skipped, and what the person has to decide or do. If nothing, say so.
+- **Report with evidence**: "done" comes with the output that proves it, and what was not verified
+  is said to be unverified. A skipped check is not a passing one.
 - A question comes with its recommendation and just enough to answer it without reading the rest.
 - Before a large change, summarize the plan and wait for confirmation.
 
 ## For agents
 
+- **What cannot be undone needs explicit confirmation**: a deploy, a migration, deleting data,
+  touching a machine. Production is deployed only from CI, never from a branch or by hand.
 - Waits end on their own: no `until pgrep` loops and no `tail -f` until the timeout.
 - Untrusted code (someone else's builds or tests) runs with a memory cap (`ulimit -d`).
 
@@ -131,6 +144,10 @@ This block is shared by the open source repositories of XOA Desarrollo and its s
 narrows what is above.
 <!-- xoadev:end -->
 
+## Production
+
+- **In production**: a public GitHub Action with tagged releases that other repositories use, so what is published only grows: its inputs, outputs and behaviour are added to, never removed or renamed.
+
 ## Versioning
 
 - In `action.yml`, actions are pinned by commit SHA too: a workflow that pins this action by SHA does not pin what it uses.
@@ -140,7 +157,7 @@ narrows what is above.
 ## Linting
 
 - `make lint` runs `agents-check`, ShellCheck (style severity), shfmt, actionlint, zizmor, markdownlint, yamllint (strict), editorconfig-checker and typos; the Lint job in `ci.yml` installs them at pinned versions and runs `make lint`.
-- The pip and pnpm linters are installed from lockfiles in `.github/etc`, transitive dependencies included: after editing `requirements.in`, regenerate `requirements.txt` with `pip-compile --generate-hashes --strip-extras requirements.in`; after editing `package.json`, run `pnpm install --lockfile-only` (pnpm pinned in its `packageManager`; `pnpm-workspace.yaml` sets the one-week `minimumReleaseAge`, and no dependency's install script runs).
+- The uv and pnpm linters are installed from lockfiles in `.github/etc`, transitive dependencies included: after editing `pyproject.toml`, run `uv lock` there (its `exclude-newer` keeps out what is less than a week old; CI pins uv's version in `ci.yml`, and locally `uv sync --frozen --project .github/etc` puts the linters in `.github/etc/.venv/bin`); after editing `package.json`, run `pnpm install --lockfile-only` (pnpm pinned in its `packageManager`; `pnpm-workspace.yaml` sets the one-week `minimumReleaseAge`, and no dependency's install script runs).
 - A pull request whose title releases a version updates the README's examples to it; `.github/scripts/check-readme-version.sh` enforces it in CI.
 
 ## Testing

@@ -14,8 +14,8 @@ updates:
       github-actions:
         patterns: ['*']
 
-  # The linters' lockfiles: markdownlint-cli2's pnpm-lock.yaml, which the npm ecosystem covers, and the pip-installed
-  # ones in requirements.in.
+  # The linters' lockfiles: markdownlint-cli2's pnpm-lock.yaml, which the npm ecosystem covers, and the uv-installed
+  # ones' uv.lock.
   - package-ecosystem: npm
     directory: /.github/etc
     schedule:
@@ -29,7 +29,7 @@ updates:
       npm:
         patterns: ['*']
 
-  - package-ecosystem: pip
+  - package-ecosystem: uv
     directory: /.github/etc
     schedule:
       interval: weekly
@@ -39,5 +39,5 @@ updates:
       prefix: ci
       include: scope
     groups:
-      pip:
+      uv:
         patterns: ['*']

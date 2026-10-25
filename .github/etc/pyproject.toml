@@ -1,0 +1,16 @@
+# The uv-installed linters, at the versions make lint is checked against; uv.lock pins them, and their dependencies,
+# with hashes. After editing this file, run `uv lock` here.
+[project]
+name = "convco-version-linters"
+version = "0"
+requires-python = ">=3.12"
+dependencies = [
+  "shellcheck-py==0.11.0.1",
+  "typos==1.51.1",
+  "yamllint==1.38.0",
+  "zizmor==1.30.1",
+]
+
+[tool.uv]
+# The shared AGENTS.md's rule for new versions: at least a week old.
+exclude-newer = "1 week"
