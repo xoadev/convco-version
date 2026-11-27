@@ -13,17 +13,6 @@ concurrency:
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
-  test-scripts:
-    name: Scripts against local repositories (make test)
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-        with:
-          persist-credentials: false
-
-      - name: Run make test
-        run: make test
-
   test-basic-patch:
     name: Basic Patch Bump
     runs-on: ubuntu-latest
@@ -215,7 +204,7 @@ jobs:
 
       - uses: ./
         with:
-          paths: 'packages/core'
+          paths: "packages/core"
         id: version
 
       - name: Validate outputs
@@ -249,7 +238,7 @@ jobs:
 
       - uses: ./
         with:
-          paths: 'packages/core'
+          paths: "packages/core"
         id: version
 
       - name: Validate outputs
@@ -286,7 +275,7 @@ jobs:
 
       - uses: ./
         with:
-          paths: 'packages/web, packages/my core'
+          paths: "packages/web, packages/my core"
         id: version
 
       - name: Validate outputs
@@ -317,7 +306,7 @@ jobs:
 
       - uses: ./
         with:
-          tag-prefix: 'release-'
+          tag-prefix: "release-"
         id: version
 
       - name: Validate outputs
@@ -417,8 +406,8 @@ jobs:
 
       - uses: ./
         with:
-          working-directory: 'packages/core'
-          paths: 'packages/core'
+          working-directory: "packages/core"
+          paths: "packages/core"
         id: version
 
       - name: Validate outputs
@@ -449,7 +438,7 @@ jobs:
 
       - uses: ./
         with:
-          convco-version: '0.6.3'
+          convco-version: "0.6.3"
         id: version
 
       - name: Validate outputs
@@ -469,7 +458,7 @@ jobs:
 
       - uses: ./
         with:
-          convco-sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+          convco-sha256: "0000000000000000000000000000000000000000000000000000000000000000"
         id: version
         continue-on-error: true
 
@@ -492,7 +481,7 @@ jobs:
 
       - uses: ./
         with:
-          convco-version: '0.7.1'
+          convco-version: "0.7.1"
         id: version
         continue-on-error: true
 

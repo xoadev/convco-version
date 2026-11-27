@@ -1,40 +1,26 @@
-.PHONY: lint test agents-sync agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
+# convco-version — task runner. CI runs `make check` (ci.yml); test.yml also runs the action itself, which needs a
+# runner.
 
-# CI runs this same target; each linter needs its tool on the PATH, at the version ci.yml installs.
-lint: agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
+# xoadev/xoa-base at the commit the project's workflows call, which Dependabot moves: make reads it
+# from them, fetches it into .xoa-base/ when it is missing or at another commit, and git checks it.
+XOA_BASE := $(sort $(shell sed -n 's|.*xoadev/xoa-base/\.github/[^@]*@\([0-9a-f]\{40\}\).*|\1|p' .github/workflows/*.y*ml))
+$(if $(XOA_BASE),,$(error no workflow calls xoa-base yet: add the one its README shows first))
+$(if $(filter 1,$(words $(XOA_BASE))),,$(error the workflows call xoa-base at $(XOA_BASE): one commit, in every uses: line))
+include .xoa-base/$(XOA_BASE)/base.mk
+include $(foreach linter,markdown yaml shell actions typos editorconfig,.xoa-base/$(XOA_BASE)/lint/$(linter).mk)
+.xoa-base/$(XOA_BASE)/%: .xoa-base/$(XOA_BASE)/.fetched ;
+.xoa-base/$(XOA_BASE)/.fetched:
+	@rm -rf .xoa-base && git init -q $(@D)
+	@git -C $(@D) fetch -q --depth 1 https://github.com/xoadev/xoa-base $(XOA_BASE)
+	@git -C $(@D) checkout -q FETCH_HEAD && touch $@
 
-# The action's scripts against local git repositories; test.yml also runs the action itself, which needs a runner.
-test:
-	.github/scripts/test.sh
+.PHONY: check lint format test
 
-shellcheck:
-	shellcheck --severity=style src/*.sh .github/scripts/*.sh
+check: lint test ## Everything ci.yml runs (`make -k check` to see every failure at once)
 
-shfmt:
-	shfmt --diff src .github/scripts
+lint: md-lint yaml-lint shell-lint actions-lint typos-lint editorconfig-lint ## xoa-base's linters over the whole repository
 
-actionlint:
-	actionlint
+format: md-format yaml-format shell-format ## Apply the Markdown's, the YAML's and the scripts' layout
 
-zizmor:
-	zizmor --config .github/zizmor.yml .
-
-markdownlint:
-	markdownlint-cli2 --config .github/etc/.markdownlint.json '**/*.md' '#**/node_modules'
-
-yamllint:
-	yamllint --strict --config-file .github/etc/.yamllint.yml .
-
-editorconfig:
-	editorconfig-checker
-
-typos:
-	typos
-
-# The shared head of AGENTS.md, above its <!-- xoadev:end --> line, comes from AGENTS_URL.
-AGENTS_URL := https://xoa.dev/_dev/OSS_AGENTS.md
-AGENTS_SCRIPT := https://xoa.dev/_dev/agents.sh
-
-agents-sync agents-check: ## Sync (agents-sync) or check (agents-check) the shared head of AGENTS.md
-	@if s=$$(curl -fsS --max-time 20 '$(AGENTS_SCRIPT)'); then sh -c "$$s" agents $(@:agents-%=%) '$(AGENTS_URL)'; \
-	else echo "warning: $(AGENTS_SCRIPT) unreachable, $@ not run" >&2; [ $@ = agents-check ]; fi
+test: ## The action's scripts against throwaway git repositories; test.yml runs the action itself
+	@.github/scripts/test.sh
