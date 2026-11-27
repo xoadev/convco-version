@@ -38,7 +38,7 @@ unit test suite on purpose: the integration tests are the source of truth.
 
 ## Linters
 
-`make lint` runs these, plus `make agents-check` on the shared head of [`AGENTS.md`](AGENTS.md), with the tools on
+`make lint` runs these, with the tools on
 your `PATH`. CI runs the same `make lint` on every pull request, after installing the versions pinned in
 [`ci.yml`](.github/workflows/ci.yml) and, with their dependencies, in the lockfiles of [`.github/etc`](.github/etc):
 `uv.lock` (with hashes) for ShellCheck, zizmor, yamllint and typos, through the uv pinned in `ci.yml`

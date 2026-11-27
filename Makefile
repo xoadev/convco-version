@@ -1,7 +1,7 @@
-.PHONY: lint test agents-sync agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
+.PHONY: lint test shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
 
 # CI runs this same target; each linter needs its tool on the PATH, at the version ci.yml installs.
-lint: agents-check shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
+lint: shellcheck shfmt actionlint zizmor markdownlint yamllint editorconfig typos
 
 # The action's scripts against local git repositories; test.yml also runs the action itself, which needs a runner.
 test:
@@ -30,11 +30,3 @@ editorconfig:
 
 typos:
 	typos
-
-# The shared head of AGENTS.md, above its <!-- xoadev:end --> line, comes from AGENTS_URL.
-AGENTS_URL := https://xoa.dev/_dev/OSS_AGENTS.md
-AGENTS_SCRIPT := https://xoa.dev/_dev/agents.sh
-
-agents-sync agents-check: ## Sync (agents-sync) or check (agents-check) the shared head of AGENTS.md
-	@if s=$$(curl -fsS --max-time 20 '$(AGENTS_SCRIPT)'); then sh -c "$$s" agents $(@:agents-%=%) '$(AGENTS_URL)'; \
-	else echo "warning: $(AGENTS_SCRIPT) unreachable, $@ not run" >&2; [ $@ = agents-check ]; fi
