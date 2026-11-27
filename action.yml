@@ -1,57 +1,57 @@
-name: 'convco-version'
+name: "convco-version"
 description: >-
   Calculate the current and next semantic version, bump type and changelog from Conventional Commits with convco
-author: 'xoa.dev'
+author: "xoa.dev"
 inputs:
   tag-prefix:
-    description: 'Prefix used in front of the semantic version'
-    default: 'v'
+    description: "Prefix used in front of the semantic version"
+    default: "v"
   paths:
-    description: 'Only commits that update these paths will be considered. Useful for monorepos'
-    default: '.'
+    description: "Only commits that update these paths will be considered. Useful for monorepos"
+    default: "."
   convco-version:
-    description: 'Version of convco to install'
-    default: '0.7.2' # renovate: convco
+    description: "Version of convco to install"
+    default: "0.7.2" # renovate: convco
   convco-sha256:
-    description: 'sha256 of the convco release asset, for a convco-version whose checksum this action does not know'
-    default: ''
+    description: "sha256 of the convco release asset, for a convco-version whose checksum this action does not know"
+    default: ""
   bump-type:
-    description: 'Force bump type: major, minor, or patch'
-    default: ''
+    description: "Force bump type: major, minor, or patch"
+    default: ""
   working-directory:
-    description: 'Run convco as if started in this path. Useful for monorepos with per-package .versionrc'
-    default: ''
+    description: "Run convco as if started in this path. Useful for monorepos with per-package .versionrc"
+    default: ""
 outputs:
   current-version:
-    description: 'Current version'
+    description: "Current version"
     value: ${{ steps.convco.outputs.current-version }}
   current-version-tag:
-    description: 'Current version with tag prefix'
+    description: "Current version with tag prefix"
     value: ${{ steps.convco.outputs.current-version-tag }}
   next-version:
-    description: 'Next version'
+    description: "Next version"
     value: ${{ steps.convco.outputs.next-version }}
   next-version-tag:
-    description: 'Next version with tag prefix'
+    description: "Next version with tag prefix"
     value: ${{ steps.convco.outputs.next-version-tag }}
   changelog:
-    description: 'Changelog for the next release'
+    description: "Changelog for the next release"
     value: ${{ steps.convco.outputs.changelog }}
   has-changes:
-    description: 'Whether there are unreleased changes'
+    description: "Whether there are unreleased changes"
     value: ${{ steps.convco.outputs.has-changes }}
   bump-type:
-    description: 'Detected bump type (major, minor, patch, none)'
+    description: "Detected bump type (major, minor, patch, none)"
     value: ${{ steps.convco.outputs.bump-type }}
   commits-since-last-release:
-    description: 'Number of commits since the last release tag'
+    description: "Number of commits since the last release tag"
     value: ${{ steps.convco.outputs.commits-since-last-release }}
   cache-hit:
-    description: 'Whether convco was loaded from cache'
+    description: "Whether convco was loaded from cache"
     value: ${{ steps.install.outputs.cache-hit }}
 
 runs:
-  using: 'composite'
+  using: "composite"
   steps:
     - name: Cache convco
       id: cache
@@ -80,5 +80,5 @@ runs:
         WORKING_DIRECTORY: ${{ inputs.working-directory }}
 
 branding:
-  icon: 'tag'
-  color: 'blue'
+  icon: "tag"
+  color: "blue"

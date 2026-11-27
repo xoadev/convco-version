@@ -7,12 +7,13 @@
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-fe5196.svg)](https://www.conventionalcommits.org/)
 
-A GitHub Action that works out the **current version, the next version, the bump type and the changelog** of your
-project from its [Conventional Commits](https://www.conventionalcommits.org/), using
-[convco](https://github.com/convco/convco).
+A GitHub Action that works out the **current version, the next version, the bump type and the
+changelog** of your project from its [Conventional Commits](https://www.conventionalcommits.org/),
+using [convco](https://github.com/convco/convco).
 
-Tag your releases, write `feat:` and `fix:` commits, and let the action tell you what comes next: no version files to
-keep in sync, no Docker image to build, and the same answer on Linux, macOS and Windows.
+Tag your releases, write `feat:` and `fix:` commits, and let the action tell you what comes next: no
+version files to keep in sync, no Docker image to build, and the same answer on Linux, macOS and
+Windows.
 
 Available on the [GitHub Marketplace](https://github.com/marketplace/actions/convco-version).
 
@@ -60,28 +61,28 @@ Available on the [GitHub Marketplace](https://github.com/marketplace/actions/con
 
 ## Inputs
 
-| Input | Description | Default |
-| --- | --- | --- |
-| `tag-prefix` | Prefix for version tags | `v` |
-| `paths` | Comma-separated paths to filter commits (monorepo support) | `.` |
-| `convco-version` | Version of convco to install | `0.7.2` |
-| `convco-sha256` | sha256 of the convco release asset, for a `convco-version` whose checksum the action doesn't know | _(known versions)_ |
-| `bump-type` | Force bump type: `major`, `minor`, or `patch` | _(auto-detect)_ |
-| `working-directory` | Run convco from this path (useful for per-package `.versionrc`) | _(root)_ |
+| Input               | Description                                                                                       | Default            |
+| ------------------- | ------------------------------------------------------------------------------------------------- | ------------------ |
+| `tag-prefix`        | Prefix for version tags                                                                           | `v`                |
+| `paths`             | Comma-separated paths to filter commits (monorepo support)                                        | `.`                |
+| `convco-version`    | Version of convco to install                                                                      | `0.7.2`            |
+| `convco-sha256`     | sha256 of the convco release asset, for a `convco-version` whose checksum the action doesn't know | _(known versions)_ |
+| `bump-type`         | Force bump type: `major`, `minor`, or `patch`                                                     | _(auto-detect)_    |
+| `working-directory` | Run convco from this path (useful for per-package `.versionrc`)                                   | _(root)_           |
 
 ## Outputs
 
-| Output | Description |
-| --- | --- |
-| `current-version` | Current version (e.g., `1.2.3`) |
-| `current-version-tag` | Current version with prefix (e.g., `v1.2.3`) |
-| `next-version` | Next version (e.g., `1.3.0`) |
-| `next-version-tag` | Next version with prefix (e.g., `v1.3.0`) |
-| `changelog` | Changelog for the next release |
-| `has-changes` | `true` if there are unreleased commits |
-| `bump-type` | Detected bump type: `major`, `minor`, `patch`, or `none` |
-| `commits-since-last-release` | Number of commits since the last version tag |
-| `cache-hit` | `true` if convco's archive came from the cache |
+| Output                       | Description                                              |
+| ---------------------------- | -------------------------------------------------------- |
+| `current-version`            | Current version (e.g., `1.2.3`)                          |
+| `current-version-tag`        | Current version with prefix (e.g., `v1.2.3`)             |
+| `next-version`               | Next version (e.g., `1.3.0`)                             |
+| `next-version-tag`           | Next version with prefix (e.g., `v1.3.0`)                |
+| `changelog`                  | Changelog for the next release                           |
+| `has-changes`                | `true` if there are unreleased commits                   |
+| `bump-type`                  | Detected bump type: `major`, `minor`, `patch`, or `none` |
+| `commits-since-last-release` | Number of commits since the last version tag             |
+| `cache-hit`                  | `true` if convco's archive came from the cache           |
 
 ## Usage
 
@@ -119,9 +120,10 @@ jobs:
           draft: true
 ```
 
-[limen](https://github.com/xoadev/limen) uses this pattern: a draft release on every push, published by a workflow
-run by hand, with immutable releases. The note
-[Immutable releases with convco-version](https://xoa.dev/notes/immutable-releases-with-convco-version/) shows how.
+[limen](https://github.com/xoadev/limen) uses this pattern: a draft release on every push, published
+by a workflow run by hand, with immutable releases. The note
+[Immutable releases with convco-version](https://xoa.dev/notes/immutable-releases-with-convco-version/)
+shows how.
 
 ### Build artifact with version
 
@@ -156,7 +158,7 @@ jobs:
 - uses: xoadev/convco-version@v1.1.0
   id: version
   with:
-    bump-type: major  # Force a major release regardless of commits
+    bump-type: major # Force a major release regardless of commits
 ```
 
 ### Conditional release based on bump type
@@ -173,17 +175,20 @@ jobs:
 
 ## Monorepo
 
-The `paths` input filters commits that affect specific directories. This is essential for monorepos where each package
-maintains its own version. Give each package its own `tag-prefix` too: convco only reads the tags that start with it,
-so packages sharing the default `v` would share their tags and their version.
+The `paths` input filters commits that affect specific directories. This is essential for monorepos
+where each package maintains its own version. Give each package its own `tag-prefix` too: convco
+only reads the tags that start with it, so packages sharing the default `v` would share their tags
+and their version.
 
-[limen](https://github.com/xoadev/limen) versions each of its packs on its own with `paths` and `tag-prefix`, as the
-note [Immutable releases with convco-version](https://xoa.dev/notes/immutable-releases-with-convco-version/) shows.
+[limen](https://github.com/xoadev/limen) versions each of its packs on its own with `paths` and
+`tag-prefix`, as the note
+[Immutable releases with convco-version](https://xoa.dev/notes/immutable-releases-with-convco-version/)
+shows.
 
 ### How path filtering works
 
-Convco analyzes commits that touch the specified paths. Only commits modifying files within those paths are considered
-when calculating the next version.
+Convco analyzes commits that touch the specified paths. Only commits modifying files within those
+paths are considered when calculating the next version.
 
 ### Single package
 
@@ -191,11 +196,12 @@ when calculating the next version.
 # packages/core, tagged core-v1.0.0, core-v1.1.0…
 - uses: xoadev/convco-version@v1.1.0
   with:
-    paths: 'packages/core'
-    tag-prefix: 'core-v'
+    paths: "packages/core"
+    tag-prefix: "core-v"
 ```
 
-Only commits touching `packages/core/**` will affect the version, counted from the last `core-v` tag.
+Only commits touching `packages/core/**` will affect the version, counted from the last `core-v`
+tag.
 
 ### Multiple packages
 
@@ -203,8 +209,8 @@ Only commits touching `packages/core/**` will affect the version, counted from t
 # packages/web and packages/shared
 - uses: xoadev/convco-version@v1.1.0
   with:
-    paths: 'packages/web,packages/shared'
-    tag-prefix: 'web-v'
+    paths: "packages/web,packages/shared"
+    tag-prefix: "web-v"
 ```
 
 Commits touching either path are considered together.
@@ -216,15 +222,15 @@ Use `working-directory` to run convco from a subdirectory that has its own `.ver
 ```yaml
 - uses: xoadev/convco-version@v1.1.0
   with:
-    working-directory: 'packages/core'
-    paths: 'packages/core'
-    tag-prefix: 'core-v'
+    working-directory: "packages/core"
+    paths: "packages/core"
+    tag-prefix: "core-v"
 ```
 
 ### Full workflow with matrix
 
-One job per package, each with its own `paths` and `tag-prefix`. `has-changes` is `false` for a package no commit
-touched since its last tag, so it gets no draft.
+One job per package, each with its own `paths` and `tag-prefix`. `has-changes` is `false` for a
+package no commit touched since its last tag, so it gets no draft.
 
 ```yaml
 name: Release Packages
@@ -265,8 +271,8 @@ jobs:
 
 ## Configuration
 
-Convco supports repository-level configuration via `.versionrc` (YAML/JSON) or `.convco` files in the root of your
-repository. This allows you to customize:
+Convco supports repository-level configuration via `.versionrc` (YAML/JSON) or `.convco` files in
+the root of your repository. This allows you to customize:
 
 - Custom commit types and their visibility in the changelog
 - URL formats for commits, issues, and comparisons
@@ -293,39 +299,48 @@ types:
     hidden: true
 ```
 
-See the [convco configuration docs](https://convco.github.io/configuration/) for all available options.
+See the [convco configuration docs](https://convco.github.io/configuration/) for all available
+options.
 
 ## How it works
 
-This is a [composite action](https://docs.github.com/actions/sharing-automations/creating-actions/creating-a-composite-action)
+This is a
+[composite action](https://docs.github.com/actions/sharing-automations/creating-actions/creating-a-composite-action)
 made of plain Bash, so it starts in seconds:
 
-1. **Cache**: the convco release archive for the runner's OS and architecture is restored from the Actions cache.
-2. **Install** ([`src/install.sh`](src/install.sh)): the archive is downloaded from convco's GitHub release if it isn't cached, checked against its sha256, and only then unpacked and put on the `PATH`.
-3. **Calculate** ([`src/calculate.sh`](src/calculate.sh)): convco reads the tags and commits to find the current version, the next one, the bump type and the changelog, which become the step's outputs.
+1. **Cache**: the convco release archive for the runner's OS and architecture is restored from the
+   Actions cache.
+2. **Install** ([`src/install.sh`](src/install.sh)): the archive is downloaded from convco's GitHub
+   release if it isn't cached, checked against its sha256, and only then unpacked and put on the
+   `PATH`.
+3. **Calculate** ([`src/calculate.sh`](src/calculate.sh)): convco reads the tags and commits to find
+   the current version, the next one, the bump type and the changelog, which become the step's
+   outputs.
 
 ## Security
 
-- **Verified binary.** The action knows the sha256 of every convco release asset it supports, as GitHub reports it
-  for the release. A download or a cache entry that doesn't match is refused before it runs. To use a convco version
-  the action doesn't know yet, give its checksum with `convco-sha256`.
-- **Pinned dependencies.** The actions this action uses are pinned by commit SHA, so pinning this action pins
-  everything it runs.
-- **Pin it yourself.** For the strongest guarantee, reference this action by commit SHA with the version in a comment
-  (`xoadev/convco-version@<sha> # v1.1.0`) and let [Dependabot](https://docs.github.com/code-security/dependabot)
-  keep it up to date.
+- **Verified binary.** The action knows the sha256 of every convco release asset it supports, as
+  GitHub reports it for the release. A download or a cache entry that doesn't match is refused
+  before it runs. To use a convco version the action doesn't know yet, give its checksum with
+  `convco-sha256`.
+- **Pinned dependencies.** The actions this action uses are pinned by commit SHA, so pinning this
+  action pins everything it runs.
+- **Pin it yourself.** For the strongest guarantee, reference this action by commit SHA with the
+  version in a comment (`xoadev/convco-version@<sha> # v1.1.0`) and let
+  [Dependabot](https://docs.github.com/code-security/dependabot) keep it up to date.
 
 To report a vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## Requirements
 
 - `actions/checkout@v7.0.1` with `fetch-depth: 0` (full git history)
-- Linux, macOS, or Windows runner. From convco 0.7 there is no build for Intel Macs: there, set `convco-version: 0.6.3`
+- Linux, macOS, or Windows runner. From convco 0.7 there is no build for Intel Macs: there, set
+  `convco-version: 0.6.3`
 
 ## Contributing
 
-Contributions are welcome! Read [CONTRIBUTING.md](CONTRIBUTING.md) for how to run the linters, how the integration tests
-work and the commit conventions.
+Contributions are welcome! Read [CONTRIBUTING.md](CONTRIBUTING.md) for how to run the linters, how
+the integration tests work and the commit conventions.
 
 ## License
 

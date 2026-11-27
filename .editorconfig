@@ -10,6 +10,8 @@ insert_final_newline = true
 
 [*.md]
 trim_trailing_whitespace = false
+# Prettier indents a list item's lines under its text (three spaces after `1.`).
+indent_size = unset
 
 [*.yml]
 indent_size = 2
